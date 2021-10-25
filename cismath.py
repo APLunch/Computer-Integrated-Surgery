@@ -36,18 +36,23 @@ class Vec3D:
         else:
             raise Exception("Point3D constructor: Wrong number of parameters, 1 or 3 needed, {} given".format(len(args)))
             
+    'vector-vector addition'
     def __add__(self, other):
         return Vec3D(self.matrix + other.matrix)
-    
+
+    'vector-vector subtraction'
     def __sub__(self, other):
         return Vec3D(self.matrix - other.matrix)
+    
+    'vector printout'
+    def __str__(self):
+        return str(self.matrix)
             
         
     
     
 class Rot3D:
     '3D Rotation'
-    
     def __init__(self, matrix):
         if matrix.shape == (3,3):
             self.matrix = matrix
@@ -65,6 +70,10 @@ class Rot3D:
         if isinstance(other, Rot3D):
             return Vec3D(np.matmul(self.matrix, other.matrix))
         
+    'Matrix printout'
+    def __str__(self):
+        return str(self.matrix)
+        
 
 class Frame:
     '3d Frame'
@@ -77,3 +86,6 @@ class Frame:
             return Frame(self.R * other.R, self.R * other.p + self.p)
         else:
             raise Exception("Frame multiplication type error")
+            
+    def __str__(self):
+        return "====\nR:\n{}\np:\n{}\n====".format(str(self.R),str(self.p))
