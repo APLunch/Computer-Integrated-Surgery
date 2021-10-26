@@ -82,10 +82,54 @@ class Frame:
         self.p = p
     
     def __mul__(self, other):
-        if isinstance(Frame):
+        if isinstance(other,Frame):
             return Frame(self.R * other.R, self.R * other.p + self.p)
+        elif isinstance(other, Vec3D):
+            return self.R * other + self.p
         else:
             raise Exception("Frame multiplication type error")
             
     def __str__(self):
         return "====\nR:\n{}\np:\n{}\n====".format(str(self.R),str(self.p))
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
