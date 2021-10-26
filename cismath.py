@@ -72,7 +72,7 @@ class Rot3D:
         
         'Matrix - matrix multiplication'
         if isinstance(other, Rot3D):
-            return Vec3D(np.matmul(self.matrix, other.matrix))
+            return Rot3D(np.matmul(self.matrix, other.matrix))
         
     'Matrix printout'
     def __str__(self):
