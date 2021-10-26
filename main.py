@@ -7,57 +7,79 @@ Created on Sat Oct 23 22:22:02 2021
 """
 
 from registration import registration
-from read_text import read_text
+from get_C_output import get_C_output
+from read_calreadings import read_calreadings
+from read_calbody import read_calbody
 import numpy as np
 import cismath
 import pivot_calibration
+import cismath as cis
 
 #=========================Registration, Problem 4==============================
 print("Problem 4: Expected C")
-d, a, c = read_text('pa1-debug-a-calbody.txt')
 
-D, A, C = read_text('pa1-debug-a-calreadings.txt')
+d_list, a_list, c_list = read_calbody('pa1-debug-a-calbody.txt')
+D_list, A_list, C_list, N_D, N_A, N_C, N_Frames = read_calreadings('pa1-debug-a-calreadings.txt')
 
-d_list = []
-D_list = []
-c_list = []
-C_list = []
-a_list = []
-A_list = []
-
-for row in d:
-    d_list.append(cismath.Vec3D(row[0],row[1],row[2]))
-for row in D:
-    D_list.append(cismath.Vec3D(row[0],row[1],row[2]))
-for row in c:
-    c_list.append(cismath.Vec3D(row[0],row[1],row[2]))
-for row in C:
-    C_list.append(cismath.Vec3D(row[0],row[1],row[2]))
-for row in a:
-    a_list.append(cismath.Vec3D(row[0],row[1],row[2]))
-for row in A:
-    A_list.append(cismath.Vec3D(row[0],row[1],row[2]))
-
-Fd = registration(d_list, D_list)
-Fa = registration(a_list, A_list)
-Fc = registration(c_list, C_list)
-
-C_expected = np.zeros([len(c), 3])
 
 print("Expected C:")
-for i in range(len(c)):
+C_expected_list = []
+for i in range(N_Frames):
+    D_sublist = D_list[i*N_D:(i+1)*N_D]
+    A_sublist = A_list[i*N_A:(i+1)*N_A]
+    C_sublist = C_list[i*N_C:(i+1)*N_C]
+    Fd = registration(d_list, D_sublist)
+    Fa = registration(a_list, A_sublist)
+    Fc = registration(c_list, C_sublist)
 
-    c_vector = np.zeros([1, 3])
-    c_vector += c[i]
-    
-    z = np.matmul(Fa.R.matrix, np.transpose(c_vector)) + Fa.p.matrix
-    
-    C_e = np.matmul(np.transpose(Fd.R.matrix), z) - np.matmul(np.transpose(Fd.R.matrix), Fd.p.matrix)
-    
-    C_expected[i] = np.transpose(C_e)
-    print(C_expected[i])
+    #C_expected = np.zeros([len(c_list), 3])
+    for c_vector in c_list:
+        c = Fd.inv()*(Fa * c_vector)
+        C_expected_list.append(c)
+           
+    #C_expected[i] = np.transpose(C_e)
+    #print(C_expected[i])
+        
+
+
+C_expected = np.transpose(cis.vec_list_to_matrix(C_expected_list))
+print(C_expected)
 print('\n')
+
+#get corresponding c_expected from output file
+C_output = get_C_output("Data/pa1-debug-a-output1.txt")
+
+#C_expected = np.round(C_expected, 2)
+
+#b = np.isclose(C_expected, C_output)
+
+RMSE_x = np.sqrt(np.mean((C_expected[:, 0]-C_output[:, 0])**2))
+RMSE_y = np.sqrt(np.mean((C_expected[:, 1]-C_output[:, 1])**2))
+RMSE_z = np.sqrt(np.mean((C_expected[:, 2]-C_output[:, 2])**2))
+
+RMSE = np.sqrt(np.mean((C_expected-C_output)**2))
+
+sum_error_x = 0
+sum_error_y = 0
+sum_error_z = 0
+sum_errow = 0
+
+for i in range(len(C_expected)):
+    sum_error_x += abs(C_expected[i, 0]-C_output[i, 0])
+    sum_error_y += abs(C_expected[i, 1]-C_output[i, 1])                      
+    sum_error_z += abs(C_expected[i, 2]-C_output[i, 2])
+
+sum_error =  sum_error_x + sum_error_y + sum_error_z
+
+average_error_x = sum_error_x/len(C_expected)
+average_error_y = sum_error_y/len(C_expected)
+average_error_z = sum_error_z/len(C_expected)
+average_error = sum_error/len(C_expected)
+
+
+
 #====================Pivot Calibration, Problem 5 and Problem 6===============
+
 print("Problem 5: EM Problem pivot Calibration")
 tp_EM, p_pivot_EM = pivot_calibration.EM_Pivot_Calibration('pa1-debug-a-empivot.txt')
 print("tp = \n",tp_EM,'\n\np_pivot=\n',p_pivot_EM,'\n\n',sep='')
