@@ -3,7 +3,7 @@
 """
 Created on Sat Oct 23 22:22:02 2021
 
-@author: ychen215, hfan15
+@author: ychen506, hfan15
 """
 
 from registration import registration
@@ -34,8 +34,6 @@ C_expected = compute_C_expected(calbody, calreading)
 
 
 average_error, RMSE = compare_c(calbody, calreading, output)
-
-
 
 
 #====================Pivot Calibration, Problem 5 and Problem 6===============
