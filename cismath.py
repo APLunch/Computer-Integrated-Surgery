@@ -44,6 +44,10 @@ class Vec3D:
     def __sub__(self, other):
         return Vec3D(self.matrix - other.matrix)
     
+    'vector-scaler multiplication'
+    def __mul__(self, other):
+        return Vec3D(other*self.matrix)
+    
     'vector printout'
     def __str__(self):
         return str(self.matrix)
@@ -73,7 +77,11 @@ class Rot3D:
     'Matrix printout'
     def __str__(self):
         return str(self.matrix)
-        
+    
+    'Inverse matrix'
+    def inv(self):
+        'return the inversed Rot3D object'
+        return Rot3D(np.linalg.inv(self.matrix))
 
 class Frame:
     '3d Frame'
@@ -92,12 +100,18 @@ class Frame:
     def __str__(self):
         return "====\nR:\n{}\np:\n{}\n====".format(str(self.R),str(self.p))
     
+    'Get inversed transformation'
+    def inv(self):
+        'Returns the inversed rigid transformation'
+        return Frame(self.R.inv(),self.R.inv()*(self.p*-1))
     
     
-    
-    
-    
-    
+def vec_list_to_matrix(veclist):
+    'Takes a list of Vec3D, return the corresponding matrix that contains all colonm vectors'
+    m = np.hstack([v.matrix for v in veclist])
+    return m
+
+
     
     
     
