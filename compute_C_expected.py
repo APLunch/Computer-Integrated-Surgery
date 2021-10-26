@@ -13,13 +13,13 @@ import numpy as np
 import cismath as cis 
 
 def compute_C_expected(filename1, filename2):
-    print("Problem 4: Expected C")
+    
 
     d_list, a_list, c_list = read_calbody(filename1)
     D_list, A_list, C_list, N_D, N_A, N_C, N_Frames = read_calreadings(filename2)
     
     
-    print("Expected C:")
+    print("C_expected:")
     
     C_expected_list = []
     for i in range(N_Frames):
@@ -41,6 +41,7 @@ def compute_C_expected(filename1, filename2):
     
     
     C_expected = np.transpose(cis.vec_list_to_matrix(C_expected_list))
+    
     print(C_expected)
     print('\n')
     

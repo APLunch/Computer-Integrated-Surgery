@@ -10,7 +10,7 @@ import numpy as np
 def get_C_output(file_name):
     #read txt file line by line
     lines = []
-    with open(file_name, "r") as f:
+    with open("Data/{}".format(file_name),'r') as f:
         lines = f.readlines()
     f.close()
     
