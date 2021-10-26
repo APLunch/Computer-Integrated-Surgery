@@ -7,6 +7,7 @@ Created on Sat Oct 23 22:22:02 2021
 """
 
 from registration import registration
+from compute_C_expected import compute_C_expected
 from get_C_output import get_C_output
 from read_calreadings import read_calreadings
 from read_calbody import read_calbody
@@ -16,35 +17,8 @@ import pivot_calibration
 import cismath as cis
 
 #=========================Registration, Problem 4==============================
-print("Problem 4: Expected C")
 
-d_list, a_list, c_list = read_calbody('pa1-debug-a-calbody.txt')
-D_list, A_list, C_list, N_D, N_A, N_C, N_Frames = read_calreadings('pa1-debug-a-calreadings.txt')
-
-
-print("Expected C:")
-C_expected_list = []
-for i in range(N_Frames):
-    D_sublist = D_list[i*N_D:(i+1)*N_D]
-    A_sublist = A_list[i*N_A:(i+1)*N_A]
-    C_sublist = C_list[i*N_C:(i+1)*N_C]
-    Fd = registration(d_list, D_sublist)
-    Fa = registration(a_list, A_sublist)
-    Fc = registration(c_list, C_sublist)
-
-    #C_expected = np.zeros([len(c_list), 3])
-    for c_vector in c_list:
-        c = Fd.inv()*(Fa * c_vector)
-        C_expected_list.append(c)
-           
-    #C_expected[i] = np.transpose(C_e)
-    #print(C_expected[i])
-        
-
-
-C_expected = np.transpose(cis.vec_list_to_matrix(C_expected_list))
-print(C_expected)
-print('\n')
+C_expected = compute_C_expected('pa1-debug-a-calbody.txt', 'pa1-debug-a-calreadings.txt')
 
 #get corresponding c_expected from output file
 C_output = get_C_output("Data/pa1-debug-a-output1.txt")
