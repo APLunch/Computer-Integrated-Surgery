@@ -3,7 +3,7 @@
 """
 Created on Mon Oct 25 21:22:02 2021
 
-@author: ychen215
+@author: Yuxin Chen
 """
 import numpy as np
 
@@ -14,13 +14,12 @@ def get_C_output(file_name):
         lines = f.readlines()
     f.close()
     
-    #read first line to get ND, NA and NC
+    #read first line to get N_C and N_frames
     first_line = lines[0].split(",")
-    
     N_C = int(first_line[0])
     N_frames = int(first_line[1])
     
-    #C = np.zeros([N_C, 3])    
+    #save the C value from given output txt file as an numpy.ndarray
     C_output = np.zeros([N_C*N_frames, 3])
     for row in range(3, N_C*N_frames+3):
         p = lines[row].split(",")

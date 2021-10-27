@@ -3,29 +3,23 @@
 """
 Created on Mon Oct 25 23:34:22 2021
 
-@author: ychen215
+@author: Yuxin Chen
 """
 
 import cismath as cis
 
 def read_calbody(filename):
-    #Read files and load EM Calibration data data
-    N_D = 0
-    N_A = 0
-    N_C = 0
-    N_Frames = 0
     
     with open("Data/{}".format(filename),'r') as f:
         lines = f.readlines()
         
         #read first line to get ND, NA and NC
         first_line = lines[0].split(",")
-        
         N_D = int(first_line[0])
         N_A = int(first_line[1])
         N_C = int(first_line[2])
-        #N_frames = int(first_line[3])
         
+        #save all the coordinates of d, a, c to three defined lists of Vec3D object
         points_d = []
         points_a = []
         points_c = []

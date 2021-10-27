@@ -3,19 +3,13 @@
 """
 Created on Mon Oct 25 22:34:13 2021
 
-@author: ychen215
+@author: Yuxin Chen
 """
 
 import numpy as np
 import cismath as cis
 
 def read_calreadings(filename):
-
-    #Read files and load EM Calibration data data
-    N_D = 0
-    N_A = 0
-    N_C = 0
-    N_Frames = 0
     
     with open("Data/{}".format(filename),'r') as f:
         lines = f.readlines()
@@ -28,6 +22,7 @@ def read_calreadings(filename):
         N_C = int(first_line[2])
         N_Frames = int(first_line[3])
         
+        #save all the coordinates of D, A, C to three defined lists of Vec3D object
         D_list = []
         A_list = []
         C_list = []
