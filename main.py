@@ -6,16 +6,8 @@ Created on Sat Oct 23 22:22:02 2021
 @author: Yuxin Chen, hfan15
 """
 
-from registration import registration
-from compute_C_expected import compute_C_expected
-from get_C_output import get_C_output
-from compare_c import compare_c
-from read_calreadings import read_calreadings
-from read_calbody import read_calbody
-import numpy as np
-import cismath
+import assignment1_utilities as pa1
 import pivot_calibration
-import cismath as cis
 
 
 name = 'a'
@@ -37,12 +29,12 @@ optpivot_filename = 'pa1-unknown-' + name +'-optpivot.txt'
 #=========================Registration, Problem 4==============================
 
 print("Problem 4: Compute Expected C")
-C_expected, N_C, N_Frames = compute_C_expected(calbody_filename, calreading_filename)
+C_expected, N_C, N_Frames = pa1.compute_C_expected(calbody_filename, calreading_filename)
 
 # read the C values from given output file
-C_output = get_C_output(output_filename)
+C_output = pa1.get_C_output(output_filename)
 # Compare the C_expected value with C values from given output file
-average_error, average_error_x, average_error_y, average_error_z = compare_c(C_expected, C_output)
+average_error, average_error_x, average_error_y, average_error_z = pa1.compare_c(C_expected, C_output)
 
 print('Average error = ')
 print(average_error, average_error_x, average_error_y, average_error_z)

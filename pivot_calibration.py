@@ -7,8 +7,6 @@ Created on Sun Oct 17 16:21:15 2021
 import cismath as cis
 import numpy as np
 import registration
-import matplotlib.pyplot as plt
-import random
 
 #Numpy print options
 np.set_printoptions(precision = 3)
