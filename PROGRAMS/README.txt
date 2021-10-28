@@ -1,9 +1,14 @@
 /*******************************Source Files**************************************/
-cismath.py: The math utility package that contains custom data types Vec3D, Rot3D, Frame, .etc) and useful functions to solve cis problems
-assignment1_utilities.py: Utility functions specified to programming assignment 1. Including functions that read and compare data from files.
-registration.py: Contains 1 function, registration(), that computes 3D Points to 3D Points registration between 2 lists of Vec3D objects. The function returns a Frame object.
-pivot_calibration.py: Contains 2 function that calculates the positions of tool tips using pivot calibration method. One is for the EM probe, the other one is for the optical probe.
-main.py: The main file that calls functions to complete tasks of programming assignmen 1.
+cismath.py: 
+	The math utility package that contains custom data types Vec3D, Rot3D, Frame, .etc) and useful functions to solve cis problems
+assignment1_utilities.py: 
+	Utility functions specified to programming assignment 1. Including functions that read and compare data from files.
+registration.py: 
+	Contains 1 function, registration(), that computes 3D Points to 3D Points registration between 2 lists of Vec3D objects. The function returns a Frame object.
+pivot_calibration.py: 
+	Contains 2 function that calculates the positions of tool tips using pivot calibration method. One is for the EM probe, the other one is for the optical probe.
+main.py: 
+	The main file that calls functions to complete tasks of programming assignmen 1.
 
 
 /********************************How to run***************************************/

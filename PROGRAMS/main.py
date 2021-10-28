@@ -11,7 +11,7 @@ import pivot_calibration
 
 def main(dataset):
     
-    print("*********************DATASET {}*************************".format(dataset.upper()))
+    print("\n\n\n*********************DATASET {}*************************".format(dataset.upper()))
     name = dataset
     
     if dataset in 'abcdefg':
@@ -40,7 +40,7 @@ def main(dataset):
         # Compare the C_expected value with C values from given output file
         average_error_x, average_error_y, average_error_z = pa1.compare_c(C_expected, C_output)
     
-        print('Average error = ')
+        print('Average error of C_Expected = ')
         print( average_error_x, average_error_y, average_error_z)
         print('\n')
     

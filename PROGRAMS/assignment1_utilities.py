@@ -35,9 +35,6 @@ def compute_C_expected(filename1, filename2):
     
     d_list, a_list, c_list = read_calbody(filename1)
     D_list, A_list, C_list, N_D, N_A, N_C, N_Frames = read_calreadings(filename2)
-    
-    
-    
     error_Fa_x = 0
     error_Fa_y = 0
     error_Fa_z = 0
@@ -110,23 +107,6 @@ def compute_C_expected(filename1, filename2):
 
 
 def compare_c(C_expected, C_output):
-    
-    #C_expected = compute_C_expected(calbody, calreading)
-
-    #get corresponding c_expected from output file
-    #C_output = get_C_output(output)
-
-    
-    #C_expected = np.round(C_expected, 2)
-
-    #b = np.isclose(C_expected, C_output)
-    
-    #RMSE_x = np.sqrt(np.mean((C_expected[:, 0]-C_output[:, 0])**2))
-    #RMSE_y = np.sqrt(np.mean((C_expected[:, 1]-C_output[:, 1])**2))
-    #RMSE_z = np.sqrt(np.mean((C_expected[:, 2]-C_output[:, 2])**2))
-    
-    #RMSE = np.sqrt(np.mean((C_expected-C_output)**2))
-    
     sum_error_x = 0
     sum_error_y = 0
     sum_error_z = 0
