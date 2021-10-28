@@ -11,7 +11,7 @@ import pivot_calibration
 
 def main(dataset):
     
-    print("*********************DATASET {}*************************".format(dataset.upper()))
+    print("\n\n\n*********************DATASET {}*************************".format(dataset.upper()))
     name = dataset
     
     if dataset in 'abcdefg':
@@ -38,10 +38,10 @@ def main(dataset):
     if dataset in 'abcdefg':
         C_output = pa1.get_C_output(output_filename)
         # Compare the C_expected value with C values from given output file
-        average_error, average_error_x, average_error_y, average_error_z = pa1.compare_c(C_expected, C_output)
+        average_error_x, average_error_y, average_error_z = pa1.compare_c(C_expected, C_output)
     
-        print('Average error = ')
-        print(average_error, average_error_x, average_error_y, average_error_z)
+        print('Average error of C_Expected = ')
+        print( average_error_x, average_error_y, average_error_z)
         print('\n')
     
     
@@ -58,7 +58,7 @@ def main(dataset):
     #Error analysis
     if dataset in 'abcdefg':
         pt_EM_answer, pt_OP_answer = pa1.get_calibration_output(output_filename)
-        print("Error Analysis:{} \n")
+        print("Error Analysis:{} \n".format(dataset))
         print("Expected EM probe tip:\n{}".format(pt_EM_answer))
         print("Expected Optical probe tip:\n{}".format(pt_OP_answer))
         print("")
@@ -68,7 +68,7 @@ def main(dataset):
     
     #====================Export Output Text File==================================
     
-    with open('OUTPUT/{}'.format(output_filename), 'w') as f:
+    with open('../OUTPUT/{}'.format(output_filename), 'w') as f:
         f.write(str(N_C) +', ' + str(N_Frames) + ', ' + 'pa1-debug-'+ name +'-output1.txt')
         f.write('\n')
         f.write('  ' + str(round(pt_EM.x, 2)) +',   '+str(round(pt_EM.y, 2)) +',   '+ str(round(pt_EM.z, 2)))
@@ -81,3 +81,6 @@ def main(dataset):
             f.write('\n')
 
 
+if __name__ == '__main__':
+    for dataset in 'abcdefghijk':
+        main(dataset)

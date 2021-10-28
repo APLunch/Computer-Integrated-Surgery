@@ -12,12 +12,27 @@ import registration
 np.set_printoptions(precision = 2)
 
 def EM_Pivot_Calibration(filename):
+    '''
+    Pivot calibration for EM Tool
+
+    Parameters
+    ----------
+    filename : string
+        the name of the file that contains data of EM trackers on the probe.
+
+    Returns
+    -------
+    tuple(Vec3D, Vec3D)
+        The position of tool tip and the position of calibration dimple, respectively
+        
+
+    '''
     #Read files and load EM Calibration data data
     NUM_EM_MARKERS = 0
     NUM_EM_DATA_FRAMES = 0
     EM_Data_Frames = []
     
-    with open("Data/{}".format(filename),'r') as f:
+    with open("../Input Data/{}".format(filename),'r') as f:
         data_frame = []
         for i,line in enumerate(f):
             words = line.split()
@@ -70,6 +85,22 @@ def EM_Pivot_Calibration(filename):
 
 
 def OP_Pivot_Calibration(filename, calbody_filename):
+    '''
+    Pivot Calibration for Optical Probe
+
+    Parameters
+    ----------
+    filename : string
+        filename of optical tracker data 
+    calbody_filename : string
+        name of the file containing calbody data.
+
+    Returns
+    -------
+    tuple(Vec3D, Vec3D)
+         Vec3D objects describing the position of tool tip and the calibration post'
+
+    '''
  #Read files and load Optical Calibration data data  
     NUM_OP_MARKERS_BASE = 0
     NUM_OP_MARKERS_PROBE = 0
@@ -79,7 +110,7 @@ def OP_Pivot_Calibration(filename, calbody_filename):
     OP_Markers_On_Base = []
     
     #Get data header info for 
-    with open("Data/{}".format(filename),'r') as f:
+    with open("../Input Data/{}".format(filename),'r') as f:
         all_lines = f.readlines()
         words = all_lines[0].split()
         words = [word.strip(' ,.') for word in words]
@@ -109,7 +140,7 @@ def OP_Pivot_Calibration(filename, calbody_filename):
             OP_Probe_Data_Frames.append(probe_frame.copy())
             
     #Get calbody data 
-    with open("Data/{}".format(calbody_filename),'r') as f:
+    with open("../Input Data/{}".format(calbody_filename),'r') as f:
         lines = f.readlines()[1:NUM_OP_MARKERS_BASE+1]
         for line in lines:
             words = line.split()

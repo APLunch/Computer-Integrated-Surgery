@@ -89,6 +89,7 @@ class Frame:
         self.R = R
         self.p = p
     
+    'Frame multiplication'
     def __mul__(self, other):
         if isinstance(other,Frame):
             return Frame(self.R * other.R, self.R * other.p + self.p)
