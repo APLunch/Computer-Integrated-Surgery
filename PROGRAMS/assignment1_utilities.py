@@ -9,6 +9,7 @@ import numpy as np
 import cismath as cis 
 from registration import registration
 
+# This function read the C value from the given output txt file
 def get_C_output(file_name):
     #read txt file line by line
     lines = []
@@ -31,10 +32,15 @@ def get_C_output(file_name):
     
     return C_output
 
+
+# This function compute the C_expected value as required in Question4
 def compute_C_expected(filename1, filename2):
     
+    # read the coordinates of a and A 
     d_list, a_list, c_list = read_calbody(filename1)
     D_list, A_list, C_list, N_D, N_A, N_C, N_Frames = read_calreadings(filename2)
+    
+    # initialize the error in Fa and Fd for unit test
     error_Fa_x = 0
     error_Fa_y = 0
     error_Fa_z = 0
@@ -54,9 +60,6 @@ def compute_C_expected(filename1, filename2):
         Fa = registration(a_list, A_sublist)
         Fc = registration(c_list, C_sublist)
         
-        
-        A_test = []
-        D_test = []
     
         # calculate the C_expected by using the corresponding Fd, Fa
         for c_vector in c_list:
@@ -64,6 +67,9 @@ def compute_C_expected(filename1, filename2):
             C_expected_list.append(c)
     
         # Unit test for Fa and Fd by calculating the error in Fa and Fd
+        A_test = []
+        D_test = []
+    
         # calcule late error in Fa
         for n in range(len(a_list)):
             a_vector = a_list[n]
@@ -105,32 +111,27 @@ def compute_C_expected(filename1, filename2):
     return C_expected, N_C, N_Frames
 
 
-
+# This function comare the C_expected we calculated and C value from given output file
 def compare_c(C_expected, C_output):
     sum_error_x = 0
     sum_error_y = 0
     sum_error_z = 0
-    sum_error = 0
     
     for i in range(len(C_expected)):
         sum_error_x += abs(C_expected[i, 0]-C_output[i, 0])
         sum_error_y += abs(C_expected[i, 1]-C_output[i, 1])                      
         sum_error_z += abs(C_expected[i, 2]-C_output[i, 2])
     
-    sum_error =  sum_error_x + sum_error_y + sum_error_z
     
+    #calculate the average error of x, y, z
     average_error_x = sum_error_x/len(C_expected)
     average_error_y = sum_error_y/len(C_expected)
     average_error_z = sum_error_z/len(C_expected)
-    average_error = sum_error/len(C_expected)
     
-    #print("RMSE = ", RMSE)
-    #print("Average error = ", average_error)
-    print('\n')
     
     return average_error_x, average_error_y, average_error_z
 
-
+# read the calbody txt file
 def read_calbody(filename):
     
     with open("../Input Data/{}".format(filename),'r') as f:
@@ -165,6 +166,7 @@ def read_calbody(filename):
     return points_d, points_a, points_c
 
 
+# read the calreadings txt file
 def read_calreadings(filename):
     
     with open("../Input Data/{}".format(filename),'r') as f:
