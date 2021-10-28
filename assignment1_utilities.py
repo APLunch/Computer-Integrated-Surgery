@@ -103,7 +103,7 @@ def compare_c(C_expected, C_output):
     #print("Average error = ", average_error)
     print('\n')
     
-    return average_error, average_error_x, average_error_y, average_error_z
+    return average_error_x, average_error_y, average_error_z
 
 
 def read_calbody(filename):

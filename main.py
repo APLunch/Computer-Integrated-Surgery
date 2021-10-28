@@ -38,10 +38,10 @@ def main(dataset):
     if dataset in 'abcdefg':
         C_output = pa1.get_C_output(output_filename)
         # Compare the C_expected value with C values from given output file
-        average_error, average_error_x, average_error_y, average_error_z = pa1.compare_c(C_expected, C_output)
+        average_error_x, average_error_y, average_error_z = pa1.compare_c(C_expected, C_output)
     
         print('Average error = ')
-        print(average_error, average_error_x, average_error_y, average_error_z)
+        print( average_error_x, average_error_y, average_error_z)
         print('\n')
     
     
