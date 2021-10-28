@@ -175,3 +175,32 @@ def read_calreadings(filename):
                 C_list.append(cis.Vec3D(float(words[0]), float(words[1]), float(words[2])))
         
     return D_list, A_list, C_list, N_D, N_A, N_C, N_Frames
+
+
+
+def get_calibration_output(filename):
+    with open("Data/{}".format(filename),'r') as f:
+        lines = f.readlines()
+        #Get output tip position for em probe
+        pt_em_x, pt_em_y, pt_em_z = [float(word.strip(' ,.')) for word in lines[1].split()]
+        pt_em = cis.Vec3D(pt_em_x, pt_em_y, pt_em_z)
+        
+        #Get output tip position for optical probe
+        pt_op_x, pt_op_y, pt_op_z = [float(word.strip(' ,.')) for word in lines[2].split()]
+        pt_op = cis.Vec3D(pt_op_x, pt_op_y, pt_op_z)
+        
+        return pt_em, pt_op
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        

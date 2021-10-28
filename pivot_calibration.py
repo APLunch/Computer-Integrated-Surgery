@@ -9,7 +9,7 @@ import numpy as np
 import registration
 
 #Numpy print options
-np.set_printoptions(precision = 3)
+np.set_printoptions(precision = 2)
 
 def EM_Pivot_Calibration(filename):
     #Read files and load EM Calibration data data
@@ -147,7 +147,7 @@ def OP_Pivot_Calibration(filename, calbody_filename):
     A = np.vstack([ np.hstack((F.R.matrix, -1*np.eye(3)))  for F in F_list])
     B = np.vstack([ -1*F.p.matrix for F in F_list])
     X = np.linalg.lstsq(A, B,rcond=None)
-    tp = X[0][3:]
+    pt = X[0][3:]
     p_pivot = X[0][:3]
-    return (cis.Vec3D(tp), cis.Vec3D(p_pivot))
+    return (cis.Vec3D(pt), cis.Vec3D(p_pivot))
 
