@@ -36,7 +36,15 @@ def compute_C_expected(filename1, filename2):
     d_list, a_list, c_list = read_calbody(filename1)
     D_list, A_list, C_list, N_D, N_A, N_C, N_Frames = read_calreadings(filename2)
     
-    print("C_expected:")
+    
+    
+    error_Fa_x = 0
+    error_Fa_y = 0
+    error_Fa_z = 0
+    error_Fd_x = 0
+    error_Fd_y = 0
+    error_Fd_z = 0
+
     
     #calculate the C_expected
     C_expected_list = []
@@ -48,12 +56,49 @@ def compute_C_expected(filename1, filename2):
         Fd = registration(d_list, D_sublist)
         Fa = registration(a_list, A_sublist)
         Fc = registration(c_list, C_sublist)
+        
+        
+        A_test = []
+        D_test = []
     
         # calculate the C_expected by using the corresponding Fd, Fa
         for c_vector in c_list:
             c = Fd.inv()*(Fa * c_vector)
             C_expected_list.append(c)
+    
+        # Unit test for Fa and Fd by calculating the error in Fa and Fd
+        # calcule late error in Fa
+        for n in range(len(a_list)):
+            a_vector = a_list[n]
+            A_test.append(Fa * a_vector)
+            error_Fa_x += abs(A_sublist[n].x - (Fa * a_vector).x)
+            error_Fa_y += abs(A_sublist[n].y - (Fa * a_vector).y)
+            error_Fa_z += abs(A_sublist[n].z - (Fa * a_vector).z)
             
+            
+        # calcule late error in Fd
+        for n in range(len(d_list)):
+            d_vector = d_list[n]
+            D_test.append(Fd * d_vector)
+            error_Fd_x += abs(D_sublist[n].x - (Fd * d_vector).x)
+            error_Fd_y += abs(D_sublist[n].y - (Fd * d_vector).y)
+            error_Fd_z += abs(D_sublist[n].z - (Fd * d_vector).z)
+     
+            
+    error_Fa_x = error_Fa_x/len(A_list)
+    error_Fa_y = error_Fa_y/len(A_list)
+    error_Fa_z = error_Fa_z/len(A_list)
+    #print('error Fa = ', error_Fa_x, error_Fa_y, error_Fa_z)
+    
+    
+    error_Fd_x = error_Fd_x/len(D_list)
+    error_Fd_y = error_Fd_y/len(D_list)
+    error_Fd_z = error_Fd_z/len(D_list)
+    #print('error Fd = ', error_Fd_x, error_Fd_y, error_Fd_z)
+    print('\n')    
+    
+    
+    print("C_expected:")    
     # Save C_expected as an numpy.ndarray
     C_expected = np.transpose(cis.vec_list_to_matrix(C_expected_list))
     
