@@ -58,7 +58,7 @@ def main(dataset):
     #Error analysis
     if dataset in 'abcdefg':
         pt_EM_answer, pt_OP_answer = pa1.get_calibration_output(output_filename)
-        print("Error Analysis:{} \n")
+        print("Error Analysis:{} \n".format(dataset))
         print("Expected EM probe tip:\n{}".format(pt_EM_answer))
         print("Expected Optical probe tip:\n{}".format(pt_OP_answer))
         print("")
@@ -68,7 +68,7 @@ def main(dataset):
     
     #====================Export Output Text File==================================
     
-    with open('OUTPUT/{}'.format(output_filename), 'w') as f:
+    with open('../OUTPUT/{}'.format(output_filename), 'w') as f:
         f.write(str(N_C) +', ' + str(N_Frames) + ', ' + 'pa1-debug-'+ name +'-output1.txt')
         f.write('\n')
         f.write('  ' + str(round(pt_EM.x, 2)) +',   '+str(round(pt_EM.y, 2)) +',   '+ str(round(pt_EM.z, 2)))
