@@ -12,7 +12,7 @@ from registration import registration
 def get_C_output(file_name):
     #read txt file line by line
     lines = []
-    with open("../Data/{}".format(file_name),'r') as f:
+    with open("../Input Data/{}".format(file_name),'r') as f:
         lines = f.readlines()
     f.close()
     
@@ -153,7 +153,7 @@ def compare_c(C_expected, C_output):
 
 def read_calbody(filename):
     
-    with open("../Data/{}".format(filename),'r') as f:
+    with open("../Input Data/{}".format(filename),'r') as f:
         lines = f.readlines()
         
         #read first line to get ND, NA and NC
@@ -187,7 +187,7 @@ def read_calbody(filename):
 
 def read_calreadings(filename):
     
-    with open("../Data/{}".format(filename),'r') as f:
+    with open("../Input Data/{}".format(filename),'r') as f:
         lines = f.readlines()
         
         #read first line to get ND, NA and NC
@@ -224,7 +224,7 @@ def read_calreadings(filename):
 
 
 def get_calibration_output(filename):
-    with open("../Data/{}".format(filename),'r') as f:
+    with open("../Input Data/{}".format(filename),'r') as f:
         lines = f.readlines()
         #Get output tip position for em probe
         pt_em_x, pt_em_y, pt_em_z = [float(word.strip(' ,.')) for word in lines[1].split()]
