@@ -33,6 +33,6 @@ N = 5
 coefficient = pa2.bernstein_polynomial(C_expected, C, 5)
 
 # use the correction function
-p = pa2.correction_function(C_expected, coefficient)
+p = pa2.correction_function(C_expected, coefficient, N)
 
 

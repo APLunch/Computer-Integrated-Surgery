@@ -9,9 +9,9 @@ Created on Mon Nov  1 15:44:57 2021
 import math
 import numpy as np
 
-N = 5
 
-def correction_function(measured_value, coefficient):
+
+def correction_function(measured_value, coefficient, N):
     measured_value_scaled = ScaleToBox(measured_value)
 
     x = measured_value_scaled[:, 0]
