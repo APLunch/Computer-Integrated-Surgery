@@ -7,11 +7,12 @@ Created on Sun Oct 17 16:21:15 2021
 import cismath as cis
 import numpy as np
 import registration
+import assignment2_utilities as pa2
 
 #Numpy print options
 np.set_printoptions(precision = 2)
 
-def EM_Pivot_Calibration(filename):
+def EM_Pivot_Calibration(filename, dist_coefficient = None, dist_poly_degree = None):
     '''
     Pivot calibration for EM Tool
 
@@ -24,8 +25,6 @@ def EM_Pivot_Calibration(filename):
     -------
     tuple(Vec3D, Vec3D)
         The position of tool tip and the position of calibration dimple, respectively
-        
-
     '''
     #Read files and load EM Calibration data data
     NUM_EM_MARKERS = 0

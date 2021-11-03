@@ -112,9 +112,25 @@ def vec_list_to_matrix(veclist):
     m = np.hstack([v.matrix for v in veclist])
     return m
 
+def matrix_to_vec_list(mat):
+    '''
+    Takes in a matrix consists of colonm vectors and return list of corresponding vectors.
 
+    Parameters
+    ----------
+    mat : numpy array. the matrix consists of colomn vectors
+
+    Returns
+    -------
+    list(Vec3D)
+
+    '''
+    lst=[]
+    for vec in mat.T:
+        v3d = Vec3D(vec[0],vec[1],vec[2])
+        lst.append(v3d)
     
-    
+    return lst
     
     
     

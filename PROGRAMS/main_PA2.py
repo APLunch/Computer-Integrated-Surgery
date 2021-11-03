@@ -8,6 +8,7 @@ Created on Mon Nov  1 16:41:06 2021
 
 import assignment1_utilities as pa1
 import assignment2_utilities as pa2
+import pivot_calibration
 #import PA2_2 as pa2 
 import numpy as np
 import cismath as cis
@@ -29,10 +30,22 @@ print("Step 2: Produce a suitable distortion correction function")
 
 N = 5
 
+#Get scale box for calculation
+scale_box = (np.amin(C_expected), np.amax(C_expected))
+
 #calculate the bernstein polynomial to fit data
-coefficient = pa2.bernstein_polynomial(C_expected, C, 5)
+coefficient = pa2.bernstein_polynomial(C_expected, C, N, scale_box = scale_box )
 
 # use the correction function
-p = pa2.correction_function(C_expected, coefficient, N)
+p = pa2.correction_function(C_expected.T, coefficient.T, N, scale_box = scale_box )
 
 
+#=======================Step 3================================================
+print("Step 3: Use the distortion correction function to repeat pivot calibration")
+filename = 'pa2-debug-a-empivot.txt'
+pt, p_pivot = pivot_calibration.EM_Pivot_Calibration(filename)
+print(pt, '\n',p_pivot)
+
+pt2= pa2.correction_function(pt.matrix, coefficient.T, N, scale_box = scale_box )
+
+print(pt2, '\n')
