@@ -15,11 +15,30 @@ import cismath as cis
 import registration
 import plotter
 
+
+dataset = 'a'
+
+if dataset in 'abcdefg':
+        calbody_filename = 'pa2-debug-'+ dataset +'-calbody.txt'
+        calreading_filename = 'pa2-debug-'+ dataset +'-calreadings.txt'
+        empivot_filename = 'pa2-debug-' + dataset + '-empivot.txt'
+        em_fiducials_filename = 'pa2-debug-' + dataset +'-em-fiducialss.txt'
+        ct_fiducials_filename = 'pa2-debug-' + dataset +'-ct-fiducials.txt'
+        em_nav_filename = 'pa2-debug-' + dataset +'-EM-nav.txt'
+    
+elif dataset in 'hijk':
+    calbody_filename = 'pa2-unknown-'+ dataset +'-calbody.txt'
+    calreading_filename = 'pa2-unknown-'+ dataset +'-calreadings.txt'
+    empivot_filename = 'pa2-unknown-' + dataset + '-empivot.txt'
+    em_fiducials_filename = 'pa2-unknown-' + dataset +'-em-fiducialss.txt'
+    ct_fiducials_filename = 'pa2-unknown-' + dataset +'-ct-fiducials.txt'
+    em_nav_filename = 'pa2-unknown-' + dataset +'-EM-nav.txt'
+
+
+
 #=========================Step 1===============================================
 print("Step 1: determine the value of C_expected")
 
-calbody_filename = 'pa2-debug-a-calbody.txt'
-calreading_filename = 'pa2-debug-a-calreadings.txt'
 
 C_expected, N_C, N_Frames = pa1.compute_C_expected(calbody_filename, calreading_filename)
 
@@ -44,12 +63,12 @@ p = pa2.correction_function(C_expected.T, coefficient.T, N, scale_box = scale_bo
 
 #=======================Step 3================================================
 print("Step 3: Use the distortion correction function to repeat pivot calibration")
-filename = 'pa2-debug-a-empivot.txt'
-p_tip, p_pivot = pivot_calibration.EM_Pivot_Calibration(filename)
+p_tip, p_pivot = pivot_calibration.EM_Pivot_Calibration(empivot_filename)
 
 print('pt before correction\n',p_tip, '\n')
 
 #p_tip_corrected_mat= pa2.correction_function(p_tip.matrix, coefficient.T, N, scale_box = scale_box )
+#DEBUG
 p_tip_corrected_mat=p_tip.matrix
 
 print('p_pivot before correction\n',p_pivot, '\n')
@@ -59,16 +78,14 @@ print('pt after correction\n',p_tip_corrected_mat, '\n')
 
 #=====================Step 4==================================================
 print("Step 4: compute the locations of the fiducials point\n")
-
-filename = 'pa2-debug-a-em-fiducialss.txt'
 p_tip_corrected = cis.Vec3D(p_tip_corrected_mat)
-fiducials_2_Base = pa2.fiducials_relative_base(filename, p_tip_corrected, coefficient.T, N, scale_box)
+fiducials_2_Base = pa2.fiducials_relative_base(em_fiducials_filename, p_tip_corrected, coefficient.T, N, scale_box)
 for f in fiducials_2_Base:
     print(f)
 
-filename = 'pa2-debug-a-ct-fiducials.txt'
 
-fiducials_2_CT = pa2.fiducials_relative_CT(filename)
+
+fiducials_2_CT = pa2.fiducials_relative_CT(ct_fiducials_filename)
 
 print('\n\n')
 for f in fiducials_2_CT:
@@ -77,12 +94,15 @@ for f in fiducials_2_CT:
 print("Step 5 Compute the registration frame\n")
 F_reg = registration.registration(fiducials_2_Base, fiducials_2_CT)
 
+
 #DEBUG
 plotter.plot_vec_list(fiducials_2_Base)
 plotter.plot_vec_list(fiducials_2_CT, color = 'r')
 
-test = [F_reg*p for p in fiducials_2_Base]
-plotter.plot_vec_list(fiducials_2_CT, color = 'g')
+
+for i in range(len(fiducials_2_Base)):
+    plotter.plot_arrow(fiducials_2_Base[i],fiducials_2_CT[i]-fiducials_2_Base[i])
+    
 
 print("F_reg =")
 print(F_reg)
@@ -90,8 +110,10 @@ print(F_reg)
 
 #=====================Step 6==================================================
 print("Step 6 Compute the pointer tip coordinates with respect to the tracker base\n")       
-filename = 'pa2-debug-a-EM-nav.txt'
+nav_list = pa2.calc_nav_points(em_nav_filename, p_tip_corrected, coefficient.T, N, scale_box, F_reg)
 
+for nav in nav_list:
+    print(nav)
 
             
             

@@ -200,16 +200,12 @@ def fiducials_relative_base(filename, pt, dist_coefficients, N, scale_box):
         F = registration.registration(g_list, G_list)
         F_list.append(F)
         
-        #DEBUG++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        plotter.plot_vec_list(G_list, color = 'black')
-        
     
     #Calculate fiducial locations
     fiducial_list = []
     for F in F_list:
         fid_pos = F*pt
         fiducial_list.append(fid_pos)
-        plotter.plot_arrow(F.p, F.R*pt)
         
     return fiducial_list
 

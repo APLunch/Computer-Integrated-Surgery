@@ -82,7 +82,6 @@ def EM_Pivot_Calibration(filename):
     p_pivot = X[0][3:]
     p_tip = X[0][:3]
     
-    
     return (cis.Vec3D(p_tip), cis.Vec3D(p_pivot))
 
 

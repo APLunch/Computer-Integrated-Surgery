@@ -16,7 +16,7 @@ ax = plt.axes(projection='3d')
 def plot_vec_list(vec_list, color='b'):
     ax.scatter([p.x for p in vec_list], [p.y for p in vec_list], [p.z for p in vec_list], c = color)
 
-def plot_arrow(start, end):
-    A = np.hstack([start.matrix.T, end.matrix.T])[0]
+def plot_arrow(start, vec):
+    A = np.hstack([start.matrix.T, vec.matrix.T])[0]
     print(A)
     ax.quiver(A[0],A[1],A[2],A[3],A[4],A[5])
