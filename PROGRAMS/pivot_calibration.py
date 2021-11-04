@@ -8,11 +8,12 @@ import cismath as cis
 import numpy as np
 import registration
 import assignment2_utilities as pa2
+import plotter
 
 #Numpy print options
 np.set_printoptions(precision = 2)
 
-def EM_Pivot_Calibration(filename, dist_coefficient = None, dist_poly_degree = None):
+def EM_Pivot_Calibration(filename):
     '''
     Pivot calibration for EM Tool
 
@@ -78,9 +79,11 @@ def EM_Pivot_Calibration(filename, dist_coefficient = None, dist_poly_degree = N
     A = np.vstack([ np.hstack((F.R.matrix, -1*np.eye(3)))  for F in F_list])
     B = np.vstack([ -1*F.p.matrix for F in F_list])
     X = np.linalg.lstsq(A, B, rcond=None)
-    tp = X[0][3:]
-    p_pivot = X[0][:3]
-    return (cis.Vec3D(tp), cis.Vec3D(p_pivot))
+    p_pivot = X[0][3:]
+    p_tip = X[0][:3]
+    
+    
+    return (cis.Vec3D(p_tip), cis.Vec3D(p_pivot))
 
 
 def OP_Pivot_Calibration(filename, calbody_filename):

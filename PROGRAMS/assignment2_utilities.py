@@ -9,7 +9,8 @@ Created on Mon Nov  1 15:44:57 2021
 import math
 import numpy as np
 import cismath as cis
-
+import registration
+import plotter
 
 def correction_function_rowvec(measured_value, coefficient, N, scale_box = None):
     
@@ -91,7 +92,7 @@ def bernstein_polynomial(measured_value, ground_true_value, N, scale_box = None)
                 for k in range(N+1):
                     A[row, i * (N+1)**2 + j * (N+1) + k] = F_ijk(N, i, j, k, x[row], y[row], z[row])
     
-    m = np.linalg.lstsq(A, ground_true_value)
+    m = np.linalg.lstsq(A, ground_true_value,rcond=None)
     
     coefficient = m[0]
     
@@ -131,12 +132,168 @@ def F_ijk(N, i, j, k, x, y, z):
     return B_Nk(N, i, x) * B_Nk(N, j, y) * B_Nk(N, k, z)
 
 
+def fiducials_relative_base(filename, pt, dist_coefficients, N, scale_box):
+    '''
+    This function finds the fiducials' locations from a given file and a specified p_tip vector
+
+    Parameters
+    ----------
+    filename : str
+        name of the file that contains fiducial positions relative to CT model
+    pt : cismath.Vec3D
+        precise displacement of probe tip from probe frame
+
+    Returns
+    -------
+    fiducial_list : TYPE
+
+    '''
+    NUM_EM_MARKERS = 0
+    NUM_EM_DATA_FRAMES = 0
+    EM_Data_Frames = []
+    
+    with open("../Input Data/{}".format(filename),'r') as f:
+        data_frame = []
+        for i,line in enumerate(f):
+            words = line.split(',')
+            #Strip words
+            for w in range(len(words)):
+                words[w] = words[w].strip(' .,')
+            #Handle file header, containing data info
+            if i == 0:
+                NUM_EM_MARKERS = int(words[0])
+                NUM_EM_DATA_FRAMES = int(words[1])
+                continue
+            else:
+                #Handle data
+                x, y, z = [float(word) for word in words]
+                p = cis.Vec3D(x,y,z)
+                data_frame.append(p)
+            #Store a frame of data 
+            if i % NUM_EM_MARKERS == 0:
+                #Distortion Correction
+                '''
+                mat = cis.vec_list_to_matrix(data_frame)
+                mat_corrected = correction_function(mat, dist_coefficients, N, scale_box = scale_box )
+                data_frame = cis.matrix_to_vec_list(mat_corrected)
+                '''
+                EM_Data_Frames.append(data_frame.copy())
+                data_frame.clear()
+                
+    #Calculate probe frmae and orientation
+    x = sum([point.x for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
+    y = sum([point.y for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
+    z = sum([point.z for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
+    G0 = cis.Vec3D(x,y,z)
+    g_list = []
+    for col,G_j in enumerate(EM_Data_Frames[0]):
+        g_j = G_j-G0
+        g_list.append(g_j)
+        
+    #Calculate pose of probe for each probe
+    F_list = []
+    for data_frame in EM_Data_Frames:
+        G_list = []
+        for col,G_j in enumerate(data_frame):
+            G_list.append(G_j)
+        #Find Fk
+        F = registration.registration(g_list, G_list)
+        F_list.append(F)
+        
+        #DEBUG++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        plotter.plot_vec_list(G_list, color = 'black')
+        
+    
+    #Calculate fiducial locations
+    fiducial_list = []
+    for F in F_list:
+        fid_pos = F*pt
+        fiducial_list.append(fid_pos)
+        plotter.plot_arrow(F.p, F.R*pt)
+        
+    return fiducial_list
+
+
+def fiducials_relative_CT(filename):
+    with open("../Input Data/{}".format(filename),'r') as f:
+            ct_fiducials = []
+            for i,line in enumerate(f):
+                words = line.split(',')
+                #Strip words
+                for w in range(len(words)):
+                    words[w] = words[w].strip(' .,')
+                #Handle file header, containing data info
+                if i == 0:
+                    NUM_CT_FIDUCIALS = int(words[0])
+                    continue
+                else:
+                    #Handle data
+                    x, y, z = [float(word) for word in words]
+                    p = cis.Vec3D(x,y,z)
+                    ct_fiducials.append(p)
+    
+    return ct_fiducials
 
 
 
-
-
-
-
+def calc_nav_points(filename, pt, dist_coefficients, N, scale_box, F_reg):
+    NUM_EM_MARKERS = 0
+    NUM_EM_DATA_FRAMES = 0
+    EM_Data_Frames = []
+    
+    with open("../Input Data/{}".format(filename),'r') as f:
+        data_frame = []
+        for i,line in enumerate(f):
+            words = line.split(',')
+            #Strip words
+            for w in range(len(words)):
+                words[w] = words[w].strip(' .,')
+            #Handle file header, containing data info
+            if i == 0:
+                NUM_EM_MARKERS = int(words[0])
+                NUM_EM_DATA_FRAMES = int(words[1])
+                continue
+            else:
+                #Handle data
+                x, y, z = [float(word) for word in words]
+                p = cis.Vec3D(x,y,z)
+                data_frame.append(p)
+            #Store a frame of data \
+            if i % NUM_EM_MARKERS == 0:
+                #Distortion Correction
+                '''
+                mat = cis.vec_list_to_matrix(data_frame)
+                mat_corrected = correction_function(mat, dist_coefficients, N, scale_box = scale_box )
+                data_frame = cis.matrix_to_vec_list(mat_corrected)
+                '''
+                EM_Data_Frames.append(data_frame.copy())
+                data_frame.clear()
+                
+    #Calculate probe frmae and orientation
+    x = sum([point.x for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
+    y = sum([point.y for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
+    z = sum([point.z for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
+    G0 = cis.Vec3D(x,y,z)
+    g_list = []
+    for col,G_j in enumerate(EM_Data_Frames[0]):
+        g_j = G_j-G0
+        g_list.append(g_j)
+        
+    #Calculate pose of probe for each frame
+    F_list = []
+    for data_frame in EM_Data_Frames:
+        G_list = []
+        for col,G_j in enumerate(data_frame):
+            G_list.append(G_j)
+        #Find Fk
+        F = registration.registration(g_list, G_list)
+        F_list.append(F)
+    
+    #Calculate p_tip for each frame
+    nav_list = []
+    for F in F_list:
+        nav = F*pt
+        nav_list.append(F_reg*nav)
+    return nav_list
 
 

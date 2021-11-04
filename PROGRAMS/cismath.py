@@ -60,6 +60,8 @@ class Rot3D:
     def __init__(self, matrix):
         if matrix.shape == (3,3):
             self.matrix = matrix
+            if abs(np.linalg.det(matrix) - 1) > 0.0001:
+                raise Exception("Rot3D Constructor: A Rot3D matrix must have det of 1")
         else:
             raise Exception("Rot3D Constructor: A Rot3D needs to be discribe in a 3x3 matrix")
             

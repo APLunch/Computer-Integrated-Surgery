@@ -12,6 +12,8 @@ import pivot_calibration
 #import PA2_2 as pa2 
 import numpy as np
 import cismath as cis
+import registration
+import plotter
 
 #=========================Step 1===============================================
 print("Step 1: determine the value of C_expected")
@@ -43,9 +45,65 @@ p = pa2.correction_function(C_expected.T, coefficient.T, N, scale_box = scale_bo
 #=======================Step 3================================================
 print("Step 3: Use the distortion correction function to repeat pivot calibration")
 filename = 'pa2-debug-a-empivot.txt'
-pt, p_pivot = pivot_calibration.EM_Pivot_Calibration(filename)
-print(pt, '\n',p_pivot)
+p_tip, p_pivot = pivot_calibration.EM_Pivot_Calibration(filename)
 
-pt2= pa2.correction_function(pt.matrix, coefficient.T, N, scale_box = scale_box )
+print('pt before correction\n',p_tip, '\n')
 
-print(pt2, '\n')
+#p_tip_corrected_mat= pa2.correction_function(p_tip.matrix, coefficient.T, N, scale_box = scale_box )
+p_tip_corrected_mat=p_tip.matrix
+
+print('p_pivot before correction\n',p_pivot, '\n')
+print('pt after correction\n',p_tip_corrected_mat, '\n')
+
+
+
+#=====================Step 4==================================================
+print("Step 4: compute the locations of the fiducials point\n")
+
+filename = 'pa2-debug-a-em-fiducialss.txt'
+p_tip_corrected = cis.Vec3D(p_tip_corrected_mat)
+fiducials_2_Base = pa2.fiducials_relative_base(filename, p_tip_corrected, coefficient.T, N, scale_box)
+for f in fiducials_2_Base:
+    print(f)
+
+filename = 'pa2-debug-a-ct-fiducials.txt'
+
+fiducials_2_CT = pa2.fiducials_relative_CT(filename)
+
+print('\n\n')
+for f in fiducials_2_CT:
+    print(f)
+#=====================Step 5==================================================
+print("Step 5 Compute the registration frame\n")
+F_reg = registration.registration(fiducials_2_Base, fiducials_2_CT)
+
+#DEBUG
+plotter.plot_vec_list(fiducials_2_Base)
+plotter.plot_vec_list(fiducials_2_CT, color = 'r')
+
+test = [F_reg*p for p in fiducials_2_Base]
+plotter.plot_vec_list(fiducials_2_CT, color = 'g')
+
+print("F_reg =")
+print(F_reg)
+     
+
+#=====================Step 6==================================================
+print("Step 6 Compute the pointer tip coordinates with respect to the tracker base\n")       
+filename = 'pa2-debug-a-EM-nav.txt'
+
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
