@@ -155,7 +155,7 @@ def F_ijk(N, i, j, k, x, y, z):
     return B_Nk(N, i, x) * B_Nk(N, j, y) * B_Nk(N, k, z)
 
 
-def fiducials_relative_base(filename, pt, dist_coefficients, N, scale_box):
+def fiducials_relative_base(filename, calib_local_frame, pt, dist_coefficients, N, scale_box):
     '''
     This function finds the fiducials' locations from a given file and a specified p_tip vector
 
@@ -203,16 +203,8 @@ def fiducials_relative_base(filename, pt, dist_coefficients, N, scale_box):
                 EM_Data_Frames.append(data_frame.copy())
                 data_frame.clear()
                 
-    #Calculate probe frmae and orientation
-    x = sum([point.x for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
-    y = sum([point.y for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
-    z = sum([point.z for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
-    G0 = cis.Vec3D(x,y,z)
-    g_list = []
-    for col,G_j in enumerate(EM_Data_Frames[0]):
-        g_j = G_j-G0
-        g_list.append(g_j)
-        
+    #Get local frame
+    g_list = calib_local_frame
     #Calculate pose of probe for each probe
     F_list = []
     for data_frame in EM_Data_Frames:
@@ -229,7 +221,6 @@ def fiducials_relative_base(filename, pt, dist_coefficients, N, scale_box):
     for F in F_list:
         fid_pos = F*pt
         fiducial_list.append(fid_pos)
-        
     return fiducial_list
 
 
@@ -255,7 +246,7 @@ def fiducials_relative_CT(filename):
 
 
 
-def calc_nav_points(filename, pt, dist_coefficients, N, scale_box, F_reg):
+def calc_nav_points(filename,calib_local_frame ,pt, dist_coefficients, N, scale_box, F_reg):
     NUM_EM_MARKERS = 0
     NUM_EM_DATA_FRAMES = 0
     EM_Data_Frames = []
@@ -288,15 +279,8 @@ def calc_nav_points(filename, pt, dist_coefficients, N, scale_box, F_reg):
                 EM_Data_Frames.append(data_frame.copy())
                 data_frame.clear()
                 
-    #Calculate probe frmae and orientation
-    x = sum([point.x for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
-    y = sum([point.y for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
-    z = sum([point.z for point in EM_Data_Frames[0]])/NUM_EM_MARKERS
-    G0 = cis.Vec3D(x,y,z)
-    g_list = []
-    for col,G_j in enumerate(EM_Data_Frames[0]):
-        g_j = G_j-G0
-        g_list.append(g_j)
+    #Get local frame
+    g_list = calib_local_frame
         
     #Calculate pose of probe for each frame
     F_list = []
@@ -375,9 +359,9 @@ def compute_C_expected(filename1, filename2):
         D_sublist = D_list[i*N_D:(i+1)*N_D]
         A_sublist = A_list[i*N_A:(i+1)*N_A]
         C_sublist = C_list[i*N_C:(i+1)*N_C]
-        Fd = registration(d_list, D_sublist)
-        Fa = registration(a_list, A_sublist)
-        Fc = registration(c_list, C_sublist)
+        Fd = registration.registration(d_list, D_sublist)
+        Fa = registration.registration(a_list, A_sublist)
+        Fc = registration.registration(c_list, C_sublist)
         
     
         # calculate the C_expected by using the corresponding Fd, Fa

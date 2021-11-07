@@ -15,7 +15,7 @@ import registration
 import plotter
 
 
-dataset = 'd'
+dataset = 'a'
 
 if dataset in 'abcdefg':
         calbody_filename = 'pa2-debug-'+ dataset +'-calbody.txt'
@@ -86,7 +86,7 @@ p = pa2.correction_function(C_expected.T, coefficient.T, N, scale_box = scale_bo
 
 #=======================Step 3================================================
 print("Step 3: Use the distortion correction function to repeat pivot calibration")
-p_tip, p_pivot = pivot_calibration.EM_Pivot_Calibration_With_Correction(empivot_filename, coefficient.T, N, scale_box = scale_box)
+p_tip, p_pivot, calib_local_frame = pivot_calibration.EM_Pivot_Calibration_With_Correction(empivot_filename, coefficient.T, N, scale_box = scale_box)
 
 print('pt before correction\n',p_tip, '\n')
 print('p_pivot before correction\n',p_pivot, '\n')
@@ -96,7 +96,7 @@ print('p_pivot before correction\n',p_pivot, '\n')
 
 #=====================Step 4==================================================
 print("Step 4: compute the locations of the fiducials point\n")
-fiducials_2_Base = pa2.fiducials_relative_base(em_fiducials_filename, p_tip, coefficient.T, N, scale_box)
+fiducials_2_Base = pa2.fiducials_relative_base(em_fiducials_filename, calib_local_frame, p_tip, coefficient.T, N, scale_box)
 for f in fiducials_2_Base:
     print(f)
 
@@ -127,7 +127,7 @@ print(F_reg)
 
 #=====================Step 6==================================================
 print("Step 6 Compute the pointer tip coordinates with respect to the tracker base\n")       
-nav_list = pa2.calc_nav_points(em_nav_filename, p_tip, coefficient.T, N, scale_box, F_reg)
+nav_list = pa2.calc_nav_points(em_nav_filename, calib_local_frame , p_tip, coefficient.T, N, scale_box, F_reg)
 
 for nav in nav_list:
     print(nav)

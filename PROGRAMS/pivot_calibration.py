@@ -82,7 +82,7 @@ def EM_Pivot_Calibration(filename):
     p_pivot = X[0][3:]
     p_tip = X[0][:3]
     
-    return (cis.Vec3D(p_tip), cis.Vec3D(p_pivot))
+    return cis.Vec3D(p_tip), cis.Vec3D(p_pivot),g_list
 
 
 
@@ -176,7 +176,7 @@ def EM_Pivot_Calibration_With_Correction(filename, dist_coefficient, N, scale_bo
     p_pivot = X[0][3:]
     p_tip = X[0][:3]
     
-    return (cis.Vec3D(p_tip), cis.Vec3D(p_pivot))
+    return cis.Vec3D(p_tip), cis.Vec3D(p_pivot), g_list
 
 
 
@@ -288,5 +288,7 @@ def OP_Pivot_Calibration(filename, calbody_filename):
     X = np.linalg.lstsq(A, B,rcond=None)
     pt = X[0][3:]
     p_pivot = X[0][:3]
-    return (cis.Vec3D(pt), cis.Vec3D(p_pivot))
+    return cis.Vec3D(pt), cis.Vec3D(p_pivot), g_list
+
+
 
