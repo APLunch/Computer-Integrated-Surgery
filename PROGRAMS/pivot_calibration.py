@@ -86,9 +86,6 @@ def EM_Pivot_Calibration(filename):
 
 
 
-
-
-
 def EM_Pivot_Calibration_With_Correction(filename, dist_coefficient, N, scale_box = None):
     '''
     Pivot calibration for EM Tool
@@ -128,8 +125,7 @@ def EM_Pivot_Calibration_With_Correction(filename, dist_coefficient, N, scale_bo
                 p = cis.Vec3D(x,y,z)
                 all_points.append(p)
     
-    #find q min and q max
-    
+    #find q min and q max or use what is given as parameter
     q_min = np.amin(cis.vec_list_to_matrix(all_points))
     q_max = np.amax(cis.vec_list_to_matrix(all_points))
     if scale_box is None:
@@ -177,19 +173,6 @@ def EM_Pivot_Calibration_With_Correction(filename, dist_coefficient, N, scale_bo
     p_tip = X[0][:3]
     
     return cis.Vec3D(p_tip), cis.Vec3D(p_pivot), g_list
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def OP_Pivot_Calibration(filename, calbody_filename):

@@ -195,11 +195,7 @@ def fiducials_relative_base(filename, calib_local_frame, pt, dist_coefficients, 
             #Store a frame of data 
             if i % NUM_EM_MARKERS == 0:
                 #Distortion Correction
-                '''
-                mat = cis.vec_list_to_matrix(data_frame)
-                mat_corrected = correction_function(mat, dist_coefficients, N, scale_box = scale_box )
-                data_frame = cis.matrix_to_vec_list(mat_corrected)
-                '''
+                data_frame = correction_function_vec_list(data_frame, dist_coefficients, N, scale_box = scale_box)
                 EM_Data_Frames.append(data_frame.copy())
                 data_frame.clear()
                 
@@ -271,11 +267,7 @@ def calc_nav_points(filename,calib_local_frame ,pt, dist_coefficients, N, scale_
             #Store a frame of data \
             if i % NUM_EM_MARKERS == 0:
                 #Distortion Correction
-                '''
-                mat = cis.vec_list_to_matrix(data_frame)
-                mat_corrected = correction_function(mat, dist_coefficients, N, scale_box = scale_box )
-                data_frame = cis.matrix_to_vec_list(mat_corrected)
-                '''
+                data_frame = correction_function_vec_list(data_frame, dist_coefficients, N, scale_box = scale_box)
                 EM_Data_Frames.append(data_frame.copy())
                 data_frame.clear()
                 
