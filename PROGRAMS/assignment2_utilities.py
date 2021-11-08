@@ -156,7 +156,7 @@ def F_ijk(N, i, j, k, x, y, z):
     return B_Nk(N, i, x) * B_Nk(N, j, y) * B_Nk(N, k, z)
 
 
-def fiducials_relative_base(filename, calib_local_frame, pt, dist_coefficients, N, scale_box):
+def fiducials_relative_base(filename, calib_local_frame, pt, dist_coefficients, N, scale_box, correction = True):
     '''
     This function finds the fiducials' locations from a given file and a specified p_tip vector
 
@@ -195,8 +195,9 @@ def fiducials_relative_base(filename, calib_local_frame, pt, dist_coefficients, 
                 data_frame.append(p)
             #Store a frame of data 
             if i % NUM_EM_MARKERS == 0:
-                #Distortion Correction
-                data_frame = correction_function_vec_list(data_frame, dist_coefficients, N, scale_box = scale_box)
+                if correction:
+                    #Distortion Correction
+                    data_frame = correction_function_vec_list(data_frame, dist_coefficients, N, scale_box = scale_box)
                 EM_Data_Frames.append(data_frame.copy())
                 data_frame.clear()
                 
@@ -243,7 +244,7 @@ def fiducials_relative_CT(filename):
 
 
 
-def calc_nav_points(filename,calib_local_frame ,pt, dist_coefficients, N, scale_box, F_reg):
+def calc_nav_points(filename,calib_local_frame ,pt, dist_coefficients, N, scale_box, F_reg, correction = True):
     NUM_EM_MARKERS = 0
     NUM_EM_DATA_FRAMES = 0
     EM_Data_Frames = []
@@ -267,8 +268,9 @@ def calc_nav_points(filename,calib_local_frame ,pt, dist_coefficients, N, scale_
                 data_frame.append(p)
             #Store a frame of data \
             if i % NUM_EM_MARKERS == 0:
-                #Distortion Correction
-                data_frame = correction_function_vec_list(data_frame, dist_coefficients, N, scale_box = scale_box)
+                if correction:
+                    #Distortion Correction
+                    data_frame = correction_function_vec_list(data_frame, dist_coefficients, N, scale_box = scale_box)
                 EM_Data_Frames.append(data_frame.copy())
                 data_frame.clear()
                 
