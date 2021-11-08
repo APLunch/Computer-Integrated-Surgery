@@ -13,6 +13,28 @@ import plotter
 #Numpy print options
 np.set_printoptions(precision = 2)
 
+
+# This function comare the C_expected we calculated and C value from given output file
+def compare_before_after_correction(data_before, data_after):
+    sum_error_x = 0
+    sum_error_y = 0
+    sum_error_z = 0
+    
+    for i in range(len(data_before)):
+        sum_error_x += abs(data_before[i].x-data_after[i].x)
+        sum_error_y += abs(data_before[i].y-data_after[i].y)                      
+        sum_error_z += abs(data_before[i].z-data_after[i].z)
+    
+    
+    #calculate the average error of x, y, z
+    average_error_x = sum_error_x/len(data_before)
+    average_error_y = sum_error_y/len(data_before)
+    average_error_z = sum_error_z/len(data_before)
+    
+    
+    return average_error_x, average_error_y, average_error_z
+
+
 def EM_Pivot_Calibration(filename):
     '''
     Pivot calibration for EM Tool
@@ -133,8 +155,15 @@ def EM_Pivot_Calibration_With_Correction(filename, dist_coefficient, N, scale_bo
     else:
         my_scale_box = scale_box
     
+    data_before = all_points;
+    
     #correct point
     all_points = pa2.correction_function_vec_list(all_points, dist_coefficient, N,scale_box=my_scale_box)
+    
+    data_after = all_points;
+    
+    #print('Difference in C_value before and after using correction function:')
+    #print(compare_before_after_correction(data_before, data_after))
     
     #Seperate each data frame
     data_frame = []

@@ -83,7 +83,8 @@ def main(dataset):
     coefficient = pa2.bernstein_polynomial(C_expected, C, N, scale_box = scale_box )
     
     # use the correction function
-    p = pa2.correction_function(C_expected.T, coefficient.T, N, scale_box = scale_box )
+    C_corrected = pa2.correction_function(C_expected.T, coefficient.T, N, scale_box = scale_box )
+    
     
     
     #=======================Step 3================================================

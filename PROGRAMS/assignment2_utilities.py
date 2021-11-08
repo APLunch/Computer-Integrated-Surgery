@@ -12,6 +12,7 @@ import cismath as cis
 import registration
 import plotter
 
+
 def correction_function_rowvec(measured_value, coefficient, N, scale_box = None):
     
     if scale_box is None:
