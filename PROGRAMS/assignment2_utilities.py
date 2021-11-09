@@ -111,9 +111,27 @@ def correction_function_vec_list(measured_value, coefficient, N, scale_box = Non
     return cis.matrix_to_vec_list(p_mat)
 
 
-# calculate the coefficient of bernstein polynomial with N degree used in the correction function 
 def bernstein_polynomial(ground_true_value, measured_value, N, scale_box = None):    
-    
+    '''
+    calculate the coefficient of bernstein polynomial with N degree used in the correction function 
+
+    Parameters
+    ----------
+    ground_true_value: 3 x n numpy array
+        ground true value
+    measured_value : 3 x n numpy array
+        measured value with distortion.
+    N : TYPE
+        degree of polynomial distortion.
+    scale_box : (float, float), optional
+        Scale box of bertein polynomial function. The default is None.
+
+    Returns
+    -------
+    m x 3  numpy array
+        distortion coefficients
+
+    '''
     #scale the input value to the range between 0 and 1
     if scale_box is None:
         box_min = np.amin(measured_value)
@@ -393,7 +411,7 @@ def read_calreadings(filename):
 
 
 
-# This function compute the C_expected value as required in Question4
+# This function compute the C_expected value from PA1
 def compute_C_expected(filename1, filename2):  
     # read the coordinates of a and A 
     d_list, a_list, c_list = read_calbody(filename1)
