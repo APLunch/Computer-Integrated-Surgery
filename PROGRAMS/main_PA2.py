@@ -126,7 +126,30 @@ def main(dataset):
     for nav in nav_list:
         print(nav)
     
-                
+    #Result Comparasion with DEBUG file
+    if 'debug' in output2_filename:
+        ct_points = []
+        with open('../Input Data/{}'.format(output2_filename), 'r') as f:
+            for i,line in enumerate(f):
+                words = line.split(',')
+                #Strip words
+                for w in range(len(words)):
+                    words[w] = words[w].strip(' .,')
+                #Handle file header, containing data info
+                if i == 0:
+                    continue
+                else:
+                    #Handle data
+                    x, y, z = [float(word) for word in words]
+                    p = cis.Vec3D(x,y,z)
+                    ct_points.append(p)
+        
+        
+        avg_error_no_correction = sum([ct_points[i].matrix - nav_list_dist[i].matrix for i in range(len(ct_points))])/len(ct_points)
+        avg_error = sum([ct_points[i].matrix - nav_list[i].matrix for i in range(len(ct_points)) ])/len(ct_points)
+                    
+        print("Avg error before correction:\n", avg_error_no_correction, sep='')
+        print("Avg error after correction:\n", avg_error, sep='')
     
     #====================Export Output Text File==================================
     
@@ -154,7 +177,7 @@ def main(dataset):
 #Run all input files
 #***************************************************************************
 if __name__ == '__main__':
-    for dataset in 'abcdef':
+    for dataset in 'abcdefghij':
         main(dataset)
             
             

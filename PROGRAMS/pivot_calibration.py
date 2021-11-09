@@ -8,7 +8,6 @@ import cismath as cis
 import numpy as np
 import registration
 import assignment2_utilities as pa2
-import plotter
 
 #Numpy print options
 np.set_printoptions(precision = 2)
@@ -158,12 +157,8 @@ def EM_Pivot_Calibration_With_Correction(filename, dist_coefficient, N, scale_bo
     data_before = all_points;
     
     #correct point
-    all_points = pa2.correction_function_vec_list(all_points, dist_coefficient, N,scale_box=my_scale_box)
-    
-    data_after = all_points;
-    
-    #print('Difference in C_value before and after using correction function:')
-    #print(compare_before_after_correction(data_before, data_after))
+    corrected = pa2.correction_function_vec_list(all_points, dist_coefficient, N,scale_box=my_scale_box)
+    all_points = pa2.correction_function_vec_list(all_points, dist_coefficient, N,scale_box=my_scale_box)    
     
     #Seperate each data frame
     data_frame = []

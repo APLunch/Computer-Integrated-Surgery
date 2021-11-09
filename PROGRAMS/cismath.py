@@ -51,6 +51,10 @@ class Vec3D:
     'vector printout'
     def __str__(self):
         return str(self.matrix)
+    
+    'vector divition'
+    def __div__(self, other):
+        return Vec3D(self.matrix/other)
             
         
     
