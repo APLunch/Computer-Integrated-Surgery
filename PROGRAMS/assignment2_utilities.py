@@ -93,7 +93,7 @@ def correction_function_vec_list(measured_value, coefficient, N, scale_box = Non
     return cis.matrix_to_vec_list(p_mat)
 
 
-# calculate the coefficient of bernstein polynomial used in the correctio function
+# calculate the coefficient of bernstein polynomial with N degree used in the correction function 
 def bernstein_polynomial(ground_true_value, measured_value, N, scale_box = None):    
     
     #scale the input value to the range between 0 and 1
