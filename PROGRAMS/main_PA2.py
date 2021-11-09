@@ -43,7 +43,8 @@ def main(dataset):
         output2_filename = 'pa2-unknown-'+ dataset +'-output2.txt'
     
     
-    #Loocking for max and minimum value in entire EM dataset, for Berstein polynomial
+    #Loocking for scale bounding box(max and minimum value) 
+    #that can cover all the measured value we will correct in entire EM dataset for correction function
     p_min = 10000
     p_max = -10000
     for fname in [calreading_filename,empivot_filename,em_fiducials_filename,em_nav_filename]:
