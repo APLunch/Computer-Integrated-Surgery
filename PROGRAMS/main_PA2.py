@@ -82,14 +82,13 @@ def main(dataset):
     coefficient = pa2.bernstein_polynomial(C_expected, C, N, scale_box = scale_box )
     # use the correction function
     C_corrected = pa2.correction_function(C.T, coefficient.T, N, scale_box = scale_box )
-     
     
     #=======================Step 3================================================
     print("Step 3: Use the distortion correction function to repeat pivot calibration")
-    p_tip_EM, p_pivot, calib_local_frame_EM = pivot_calibration.EM_Pivot_Calibration_With_Correction(empivot_filename, coefficient.T, N, scale_box = scale_box)
-    p_tip_EM_d, p_pivot_d, calib_local_frame_EM_d = pivot_calibration.EM_Pivot_Calibration(empivot_filename)
-    print('p_pivot without correction\n',p_pivot_d, '\n')
-    print('p_pivot after correction\n',p_pivot, '\n')
+    p_tip_EM, p_pivot_EM, calib_local_frame_EM = pivot_calibration.EM_Pivot_Calibration_With_Correction(empivot_filename, coefficient.T, N, scale_box = scale_box)
+    p_tip_EM_d, p_pivot_d_EM, calib_local_frame_EM_d = pivot_calibration.EM_Pivot_Calibration(empivot_filename)
+    print('p_pivot without correction\n',p_pivot_d_EM, '\n')
+    print('p_pivot after correction\n',p_pivot_EM, '\n')
     
     
     #======================Step 3.1===============================================
@@ -157,9 +156,9 @@ def main(dataset):
     with open('../OUTPUT/{}'.format(output1_filename), 'w') as f:
         f.write(str(N_C) +', ' + str(N_Frames) + ', ' + output1_filename)
         f.write('\n')
-        f.write('  ' + str(round(p_tip_EM.x, 2)) +',   '+str(round(p_tip_EM.y, 2)) +',   '+ str(round(p_tip_EM.z, 2)))
+        f.write('  ' + str(round(p_pivot_EM.x, 2)) +',   '+str(round(p_pivot_EM.y, 2)) +',   '+ str(round(p_pivot_EM.z, 2)))
         f.write('\n')
-        f.write('  ' + str(round(p_tip_OP.x,2)) + ',   '+str(round(p_tip_OP.y, 2)) + ',   ' + str(round(p_tip_OP.z, 2)))
+        f.write('  ' + str(round(p_pivot_OP.x,2)) + ',   '+str(round(p_pivot_OP.y, 2)) + ',   ' + str(round(p_pivot_OP.z, 2)))
         f.write('\n')
         for row in range(len(C_expected)):
             f.write('  ' + str(round(C_expected[row, 0], 2)) +',   ' + str(round(C_expected[row, 1], 2)) + ',   ' + str(round(C_expected[row, 2], 2)))

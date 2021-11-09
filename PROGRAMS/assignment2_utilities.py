@@ -14,7 +14,25 @@ import plotter
 
 
 def correction_function_rowvec(measured_value, coefficient, N, scale_box = None):
-    
+    '''
+    Takes in N x 3 matrix that consists of all measured points(column vectors), the distortion coefficient and
+    polynomial distortion degree, return the distortion-corrected matrix 
+
+    Parameters
+    ----------
+    measured_value : n x 3 numpy array
+        measured value with distortion.
+    coefficient : m x 3 numpy array
+        distortion coefficients
+    N : int
+        degree of polynomial distortion.
+
+    Returns
+    -------
+    p :  n x 3 numpy array
+        matrix of vectors after distorton correction
+
+    '''
     if scale_box is None:
         box_min = np.amin(measured_value)
         box_max = np.amax(measured_value)
@@ -225,6 +243,19 @@ def fiducials_relative_base(filename, calib_local_frame, pt, dist_coefficients, 
 
 
 def fiducials_relative_CT(filename):
+    '''
+    Reads CT fiducial positions relative to CT frame from file.
+
+    Parameters
+    ----------
+    filename : str
+        name of fle to be read
+
+    Returns
+    -------
+    ct_fiducials : list(cismath.Vec3D)
+        list of positions representing fiducials location relative to the CT frame
+    '''
     with open("../Input Data/{}".format(filename),'r') as f:
             ct_fiducials = []
             for i,line in enumerate(f):
@@ -241,12 +272,40 @@ def fiducials_relative_CT(filename):
                     x, y, z = [float(word) for word in words]
                     p = cis.Vec3D(x,y,z)
                     ct_fiducials.append(p)
-    
     return ct_fiducials
 
 
 
 def calc_nav_points(filename,calib_local_frame ,pt, dist_coefficients, N, scale_box, F_reg, correction = True):
+    '''
+    Calculate tooltip position in respected to CT frame from given probe poses, probe calibration frame,
+        p_tip, distortion information and transformtion from EM frame to CT frame
+
+    Parameters
+    ----------
+    filename : str
+        name of the file containning probe navigation pose data
+    calib_local_frame : cismath.Frame
+        Probe calibration frame gained from pivot calibration
+    pt : cismath.Vec3D
+        Position vector of tooltip relative to the probe calibration frame 
+    dist_coefficients : 3xN matrix
+        Coefficient for Berstein polynomial distortion correction
+    N : int
+        Degree of Berstein polynomial
+    scale_box : tuple(float, float)
+        Scale box for Berstein polynomial
+    F_reg : cismath.Frame
+        Transformation from EM frame to CT frame
+    correction : Bool, optional
+        Wether the function should apply correction to EM field points. The default is True.
+
+    Returns
+    -------
+    nav_list : list(cismath.Vec3D)
+        list of points represents tooltip's positions in CT frame.
+
+    '''
     NUM_EM_MARKERS = 0
     NUM_EM_DATA_FRAMES = 0
     EM_Data_Frames = []
