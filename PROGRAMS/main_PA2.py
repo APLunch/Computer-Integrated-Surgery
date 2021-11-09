@@ -87,14 +87,14 @@ def main(dataset):
     print("Step 3: Use the distortion correction function to repeat pivot calibration")
     p_tip_EM, p_pivot_EM, calib_local_frame_EM = pivot_calibration.EM_Pivot_Calibration_With_Correction(empivot_filename, coefficient.T, N, scale_box = scale_box)
     p_tip_EM_d, p_pivot_d_EM, calib_local_frame_EM_d = pivot_calibration.EM_Pivot_Calibration(empivot_filename)
-    print('p_pivot without correction\n',p_pivot_d_EM, '\n')
-    print('p_pivot after correction\n',p_pivot_EM, '\n')
+    print('p_pivot_EM without correction\n',p_pivot_d_EM, '\n')
+    print('p_pivot_EM after correction\n',p_pivot_EM, '\n')
     
     
     #======================Step 3.1===============================================
     print("Step 3.1: Optical Probe pivot calibration")
     p_tip_OP, p_pivot_OP, calib_local_frame_OP = pivot_calibration.OP_Pivot_Calibration(optpivot_filename, calbody_filename)
-    print('p_pivot_Optical:\n',p_tip_OP,sep='')
+    print('p_pivot_Optical:\n',p_pivot_OP,sep='')
     
     #=====================Step 4==================================================
     print("Step 4: compute the locations of the fiducials point\n")
