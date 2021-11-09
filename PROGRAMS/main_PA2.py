@@ -73,7 +73,7 @@ def main(dataset):
     C_expected, N_C, N_Frames = pa2.compute_C_expected(calbody_filename, calreading_filename)
     D_list, A_list, C_list, N_D, N_A, N_C, N_Frames = pa2.read_calreadings(calreading_filename)
     C = np.transpose(cis.vec_list_to_matrix(C_list))
-    
+        
     #=========================Step 2===============================================
     print("Step 2: Produce a suitable distortion correction function")
     #Degree of Berstein Polynomial
@@ -81,7 +81,8 @@ def main(dataset):
     #calculate the bernstein polynomial to fit data
     coefficient = pa2.bernstein_polynomial(C_expected, C, N, scale_box = scale_box )
     # use the correction function
-    C_corrected = pa2.correction_function(C_expected.T, coefficient.T, N, scale_box = scale_box )
+    C_corrected = pa2.correction_function(C.T, coefficient.T, N, scale_box = scale_box )
+     
     
     #=======================Step 3================================================
     print("Step 3: Use the distortion correction function to repeat pivot calibration")
