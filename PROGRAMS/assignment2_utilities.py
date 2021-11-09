@@ -37,6 +37,7 @@ def correction_function_rowvec(measured_value, coefficient, N, scale_box = None)
                     
     return p
 
+
 def correction_function(measured_value, coefficient, N, scale_box = None):
     '''
     Takes in 3 x N matrix that consists of all measured points(column vectors), the distortion coefficient and
@@ -92,9 +93,10 @@ def correction_function_vec_list(measured_value, coefficient, N, scale_box = Non
     return cis.matrix_to_vec_list(p_mat)
 
 
-
+# calculate the coefficient of bernstein polynomial used in the correctio function
 def bernstein_polynomial(ground_true_value, measured_value, N, scale_box = None):    
     
+    #scale the input value to the range between 0 and 1
     if scale_box is None:
         box_min = np.amin(measured_value)
         box_max = np.amax(measured_value)
@@ -108,7 +110,7 @@ def bernstein_polynomial(ground_true_value, measured_value, N, scale_box = None)
     y = measured_value_scaled[:, 1]
     z = measured_value_scaled[:, 2]
     
-    
+    # use least square error to find the coefficient
     A = np.zeros([len(measured_value), (N+1)**3])
     for row in range(len(measured_value)):
         for i in range(N+1):
@@ -146,12 +148,12 @@ def ScaleToBox(q, q_min, q_max):
 
 
 
-
+#Bernstein basis polynomials of degree N
 def B_Nk(N, k, v):
     N_k = (math.factorial(N))/((math.factorial(k))*(math.factorial(N-k)))
     return N_k * (1-v)**(N-k) * v**k
 
-
+# "tensor" form polynomial using Nth degree Bernstein polynomial
 def F_ijk(N, i, j, k, x, y, z):
     return B_Nk(N, i, x) * B_Nk(N, j, y) * B_Nk(N, k, z)
 
