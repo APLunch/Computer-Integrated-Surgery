@@ -141,7 +141,34 @@ def matrix_to_vec_list(mat):
     
     
     
+class Triangle:
+    'Triangle class used for mesh'
+    def __init__(self, v1, v2, v3):
+        self.vertices = (v1,v2,v3)
     
+class Mesh:
+    'Mesh class'
+    def __init__(self):
+        self.triangles = dict()
+        self.size = 0
+    
+    
+    def add(self,triangle):
+        '''
+        Add a triangle into the mesh
+
+        Parameters
+        ----------
+        triangle : cismath.Triangle
+            triangle object to be added
+
+        Returns
+        -------
+        None.
+
+        '''
+        self.triangles[self.size] = triangle
+        self.size += 1
     
     
     

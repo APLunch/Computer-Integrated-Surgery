@@ -32,6 +32,22 @@ for i in range(N_samples):
     d_list.append(d)
     
 
+
+Mesh = pa3.load_mesh_from_file('Problem3Mesh.sur')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 """
 def main(dataset):
     

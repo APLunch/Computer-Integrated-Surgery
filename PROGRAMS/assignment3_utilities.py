@@ -82,7 +82,28 @@ def read_sample_readings(filename, N_A, N_B):
                 
     return A_list, B_list, D_list, N_D, N_samples
 
-
+def load_mesh_from_file(filename):
+    Mesh = cis.Mesh()
+    with open("../2021 PA 3-5 Student Data/{}".format(filename),'r') as f:
+        lines = f.readlines()
+        #Get number of vertices
+        N_Vertex = int(lines[0].strip())
+        #Get vertices
+        vertices = []
+        for i in range(1,N_Vertex+1):
+            line = lines[i].strip()
+            coordinate = [float(word.strip()) for word in line.split()]
+            vertices.append(cis.Vec3D(coordinate[0],coordinate[1],coordinate[2]))
+        #Get number of triangles
+        N_triangles = int(lines[N_Vertex+1].strip())
+        #Get triangles
+        for i in range(N_Vertex+2,len(lines)):
+            line = lines[i].strip()
+            v1,v2,v3 = [int(word.strip()) for word in lines[i].split()[:3]]
+            tri = cis.Triangle(v1,v2,v3)
+            Mesh.add(tri)
+    return Mesh
+            
         
         
         
