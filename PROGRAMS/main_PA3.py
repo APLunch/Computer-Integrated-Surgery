@@ -7,18 +7,30 @@ Created on Sat Oct 23 22:22:02 2021
 """
 
 import assignment3_utilities as pa3
-
+import cismath as cis 
+from registration import registration
 
 first_body_filename = 'Problem3-BodyA.txt'
-N_A, points_a, a_tip =pa3.read_body(first_body_filename) 
+N_A, a_list, a_tip =pa3.read_body(first_body_filename) 
 
 
 second_body_filename = 'Problem3-BodyB.txt'
-N_B, points_b, b_tip =pa3.read_body(second_body_filename)
+N_B, b_list, b_tip =pa3.read_body(second_body_filename)
 
 first_reading_file = 'PA3-A-Debug-SampleReadingsTest.txt'
+A_list, B_list, D_list, N_D, N_samples = pa3.read_sample_readings(first_reading_file, N_A, N_B)
 
-
+d_list = []
+for i in range(N_samples):
+    A_sublist = A_list[i*N_A:(i+1)*N_A]
+    B_sublist = B_list[i*N_B:(i+1)*N_B]
+    Fa = registration(a_list, A_sublist)
+    Fb = registration(b_list, B_sublist)
+    
+    
+    d = Fb.inv()*(Fa * a_tip)
+    d_list.append(d)
+    
 
 """
 def main(dataset):
