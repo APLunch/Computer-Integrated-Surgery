@@ -14,7 +14,7 @@ from registration import registration
 # read the calbody txt file
 def read_body(filename):
     
-    with open("../2021 PA 3-5 Student Data/{}".format(filename),'r') as f:
+    with open("../Input Data/{}".format(filename),'r') as f:
         lines = f.readlines()
         
         #read first line to get ND, NA and NC
@@ -41,7 +41,7 @@ def read_body(filename):
 # read the calreadings txt file
 def read_sample_readings(filename, N_A, N_B):
     
-    with open("../2021 PA 3-5 Student Data/{}".format(filename),'r') as f:
+    with open("../Input Data/{}".format(filename),'r') as f:
         lines = f.readlines()
         
         #read first line to get ND, NA and NC
@@ -84,7 +84,7 @@ def read_sample_readings(filename, N_A, N_B):
 
 def load_mesh_from_file(filename):
     Mesh = cis.Mesh()
-    with open("../2021 PA 3-5 Student Data/{}".format(filename),'r') as f:
+    with open("../Input Data/{}".format(filename),'r') as f:
         lines = f.readlines()
         #Get number of vertices
         N_Vertex = int(lines[0].strip())
@@ -99,7 +99,7 @@ def load_mesh_from_file(filename):
         #Get triangles
         for i in range(N_Vertex+2,len(lines)):
             line = lines[i].strip()
-            v1,v2,v3 = [int(word.strip()) for word in lines[i].split()[:3]]
+            v1,v2,v3 = [vertices[int(word.strip())] for word in lines[i].split()[:3]]
             tri = cis.Triangle(v1,v2,v3)
             Mesh.add(tri)
     return Mesh

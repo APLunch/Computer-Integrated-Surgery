@@ -55,8 +55,18 @@ class Vec3D:
     'vector divition'
     def __div__(self, other):
         return Vec3D(self.matrix/other)
-            
-        
+    
+    'vector right multiplication'
+    def __rmul__(self, other):
+        return Vec3D(other*self.matrix)
+    
+    'vector dot product'
+    def dot(self,other):
+        return np.matmul(self.matrix.T, other.matrix)[0][0]
+    
+    'get vector norm'
+    def norm(self):
+        return np.linalg.norm(self.matrix)
     
     
 class Rot3D:
@@ -170,6 +180,68 @@ class Mesh:
         self.triangles[self.size] = triangle
         self.size += 1
     
+    def bf_closet_pt_on_mesh(self,a):
+        '''
+        Find the closes point on the mesh triangles, given a point in space 'a'.
+        Using brutal force iterative search
+        
+        Parameters
+        ----------
+        a : Vec3D
+            A point in 3D space
+
+        Returns
+        -------
+        Vec3D
+            The closest point on mesh
+        '''
+        
+        closest_pt = Vec3D(9999999,9999999,9999999)
+        #General case
+        for (i,tri) in self.triangles.items():
+            p,r,q = tri.vertices
+            #Configure lstsq
+            A = np.hstack([(q-p).matrix, (r-p).matrix])
+            b = (a-p).matrix
+            res = np.linalg.lstsq(A,b,rcond=None)
+            #unpack lambda and mu
+            lam = res[0][0][0]
+            miu = res[0][1][0]
+            c = p+lam*(q-p)+miu*(r-p)
+            #Check condition
+            if lam >= 0 and miu >= 0 and (lam+miu) <= 1:
+                #Closest pt inside triangle
+                if (c-a).norm() < (closest_pt-a).norm():
+                    closest_pt = c
+            else:
+                #closest pt on edge
+                if lam < 0:
+                    c = ProjectOnSegment(c,r,p)
+                elif miu < 0:
+                    c = ProjectOnSegment(c,p,q)
+                elif lam+miu > 1:
+                    c = ProjectOnSegment(c,q,r)
+                #Replace closest_pt with closer c, if found
+                if (c-a).norm() < (closest_pt-a).norm():
+                    closest_pt = c
+        return closest_pt
+                
+def ProjectOnSegment(c,p,q):
+    '''
+    helper function that determines the projection of closest point on a triangle's edge 
+        using given parameters
+
+    Returns
+    -------
+    Vec3D 
+        The projected closest point on edge
+
+    '''
+    lam = (c-p).dot((q-p))/((q-p).dot(q-p))
+    lam_seg = max(0, min(lam,1))
+    c_projection = p + lam_seg*(q-p)
+    return c_projection
+        
     
     
     

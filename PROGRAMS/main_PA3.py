@@ -17,7 +17,7 @@ N_A, a_list, a_tip =pa3.read_body(first_body_filename)
 second_body_filename = 'Problem3-BodyB.txt'
 N_B, b_list, b_tip =pa3.read_body(second_body_filename)
 
-first_reading_file = 'PA3-A-Debug-SampleReadingsTest.txt'
+first_reading_file = 'PA3-B-Debug-SampleReadingsTest.txt'
 A_list, B_list, D_list, N_D, N_samples = pa3.read_sample_readings(first_reading_file, N_A, N_B)
 
 d_list = []
@@ -32,10 +32,11 @@ for i in range(N_samples):
     d_list.append(d)
     
 
-
+#Load Mesh
 Mesh = pa3.load_mesh_from_file('Problem3Mesh.sur')
 
-
+for d in d_list:
+    print(Mesh.bf_closet_pt_on_mesh(d))
 
 
 
