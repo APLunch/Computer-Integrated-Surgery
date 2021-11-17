@@ -9,6 +9,8 @@ Created on Sat Oct 23 22:22:02 2021
 import assignment3_utilities as pa3
 import cismath as cis 
 from registration import registration
+import numpy as np
+import math
 
 first_body_filename = 'Problem3-BodyA.txt'
 N_A, a_list, a_tip =pa3.read_body(first_body_filename) 
@@ -35,8 +37,29 @@ for i in range(N_samples):
 #Load Mesh
 Mesh = pa3.load_mesh_from_file('Problem3Mesh.sur')
 
+c_list = []
 for d in d_list:
-    print(Mesh.bf_closet_pt_on_mesh(d))
+    #print(Mesh.bf_closet_pt_on_mesh(d))
+    c_list.append(Mesh.bf_closet_pt_on_mesh(d))
+"""
+c_list = []
+for row in range(len(d_list)):
+    c_list.append(Mesh.bf_closet_pt_on_mesh(d_list[row]))
+"""
+
+
+
+#====================Export Output Text File==================================
+    
+output_filename = "PA3-B-Debug-Output.txt"
+
+with open('../OUTPUT/{}'.format(output_filename), 'w') as f:
+    f.write(str(N_samples) +', ' + ', ' + output_filename)
+    f.write('\n')
+    for row in range(N_samples):
+        f.write('  ' + str(round(d_list[row].x, 2)) +',   '+str(round(d_list[row].y, 2)) +',   ' + str(round(d_list[row].z, 2)) +
+                ',   ' + str(round(c_list[row].x, 2)) +',   ' + str(round(c_list[row].y, 2)) +',   ' + str(round(c_list[row].z, 2)))
+        f.write('\n')
 
 
 
