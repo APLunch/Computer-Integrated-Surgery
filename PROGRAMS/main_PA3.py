@@ -9,13 +9,12 @@ Created on Sat Oct 23 22:22:02 2021
 import assignment3_utilities as pa3
 import cismath as cis 
 from registration import registration
-import numpy as np
-import math
 
 
 name = "B"
 first_reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
 output_filename = 'PA3-' + name + '-Output.txt'
+debug_output_filename = 'PA3-' + name + '-Debug-Output.txt' 
 
 first_body_filename = 'Problem3-BodyA.txt'
 N_A, a_list, a_tip =pa3.read_body(first_body_filename) 
@@ -42,28 +41,47 @@ for i in range(N_samples):
 #Load Mesh
 Mesh = pa3.load_mesh_from_file('Problem3Mesh.sur')
 
+
+# find c
 c_list = []
 for d in d_list:
     #print(Mesh.bf_closet_pt_on_mesh(d))
     c_list.append(Mesh.bf_closet_pt_on_mesh(d))
-"""
-c_list = []
-for row in range(len(d_list)):
-    c_list.append(Mesh.bf_closet_pt_on_mesh(d_list[row]))
-"""
 
+# calculate e
+e = []
+for row in range(N_samples):
+    e.append(abs((d_list[row] - c_list[row]).norm()))
+    
+    
+#read debug output file provided by professor
+d_output, c_output, e_output = pa3.get_debug_output(debug_output_filename)
+ 
+
+# compare our output with debug output
+average_error_d, average_error_c, average_error_e = pa3.compare_output(d_list, c_list, e, d_output, c_output, e_output, N_samples)
+print('error in d = ')
+print(average_error_d.x, average_error_d.y, average_error_d.z)
+print('error in c = ')
+print(average_error_c.x, average_error_c.y, average_error_c.z)
+print('error in e = ')
+print(average_error_e)
+    
 
 
 #====================Export Output Text File==================================
     
 with open('../OUTPUT/{}'.format(output_filename), 'w') as f:
-    f.write(str(N_samples) +', ' + ', ' + output_filename)
+    f.write(str(N_samples) +' ' + output_filename)
     f.write('\n')
     for row in range(N_samples):
         f.write('  ' + str(round(d_list[row].x, 2)) +',   '+str(round(d_list[row].y, 2)) +',   ' + str(round(d_list[row].z, 2)) +
                 ',   ' + str(round(c_list[row].x, 2)) +',   ' + str(round(c_list[row].y, 2)) +',   ' + str(round(c_list[row].z, 2)) +
-                ',   ' + str(round(abs((d_list[row] - c_list[row]).norm()), 3)))
+                ',   ' + str(round(abs((d_list[row] - c_list[row]).norm()), 3)) + ' ')
         f.write('\n')
+
+
+
 
 
 

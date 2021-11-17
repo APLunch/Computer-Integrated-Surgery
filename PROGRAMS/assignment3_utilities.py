@@ -103,7 +103,55 @@ def load_mesh_from_file(filename):
             tri = cis.Triangle(v1,v2,v3)
             Mesh.add(tri)
     return Mesh
-            
+
+
+
+# This function read the C value from the given output txt file
+def get_debug_output(file_name):
+    #read txt file line by line
+    lines = []
+    with open("../Input Data/{}".format(file_name),'r') as f:
+        lines = f.readlines()
+    f.close()
+    
+    #read first line to get N_C and N_frames
+    first_line = lines[0].split(" ")
+    N_samps = int(first_line[0])
+    
+    d = []
+    c = []
+    error = []
+    for line in lines[1:N_samps+1]:
+        words = line.split()
+        words = [word.strip(',') for word in words]
+        #print(float(words[0]), float(words[1]), float(words[2]))
+        d.append(cis.Vec3D(float(words[0]), float(words[1]), float(words[2])))
+        c.append(cis.Vec3D(float(words[3]), float(words[4]), float(words[5])))
+        error.append(float(words[6]))
+
+    return d, c, error
+
+
+def compare_output(d_list, c_list, e, d_output, c_output, e_output, N_samples):
+    e = []
+    for row in range(N_samples):
+        e.append(abs((d_list[row] - c_list[row]).norm()))
+    
+    sum_error_d = cis.Vec3D(0, 0, 0)
+    sum_error_c = cis.Vec3D(0, 0, 0)
+    sum_error_e = 0
+    for row in range(N_samples):
+        sum_error_d += cis.Vec3D(abs(d_list[row].x - d_output[row].x), abs(d_list[row].y - d_output[row].y), abs(d_list[row].z - d_output[row].z))
+        sum_error_c += cis.Vec3D(abs(c_list[row].x - c_output[row].x), abs(c_list[row].y - c_output[row].y), abs(c_list[row].z - c_output[row].z))
+        sum_error_e += abs(e[row] - e_output[row])
+        
+    average_error_d = cis.Vec3D(sum_error_d.x / N_samples, sum_error_d.y / N_samples, sum_error_d.z / N_samples)
+    average_error_c = cis.Vec3D(sum_error_c.x / N_samples, sum_error_c.y / N_samples, sum_error_c.z / N_samples)
+    average_error_e = sum_error_e / N_samples
+
+    return average_error_d, average_error_c, average_error_e
+
+         
         
         
         
