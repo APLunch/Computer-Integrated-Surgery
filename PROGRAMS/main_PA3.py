@@ -15,7 +15,7 @@ import math
 
 name = "B"
 first_reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
-output_filename = "PA3-' + name +'-Debug-Output.txt"
+output_filename = 'PA3-' + name + '-Debug-Output.txt'
 
 first_body_filename = 'Problem3-BodyA.txt'
 N_A, a_list, a_tip =pa3.read_body(first_body_filename) 
@@ -56,8 +56,6 @@ for row in range(len(d_list)):
 
 #====================Export Output Text File==================================
     
-
-
 with open('../OUTPUT/{}'.format(output_filename), 'w') as f:
     f.write(str(N_samples) +', ' + ', ' + output_filename)
     f.write('\n')
