@@ -12,6 +12,11 @@ from registration import registration
 import numpy as np
 import math
 
+
+name = "B"
+first_reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
+output_filename = "PA3-' + name +'-Debug-Output.txt"
+
 first_body_filename = 'Problem3-BodyA.txt'
 N_A, a_list, a_tip =pa3.read_body(first_body_filename) 
 
@@ -19,7 +24,7 @@ N_A, a_list, a_tip =pa3.read_body(first_body_filename)
 second_body_filename = 'Problem3-BodyB.txt'
 N_B, b_list, b_tip =pa3.read_body(second_body_filename)
 
-first_reading_file = 'PA3-B-Debug-SampleReadingsTest.txt'
+
 A_list, B_list, D_list, N_D, N_samples = pa3.read_sample_readings(first_reading_file, N_A, N_B)
 
 d_list = []
@@ -51,14 +56,15 @@ for row in range(len(d_list)):
 
 #====================Export Output Text File==================================
     
-output_filename = "PA3-B-Debug-Output.txt"
+
 
 with open('../OUTPUT/{}'.format(output_filename), 'w') as f:
     f.write(str(N_samples) +', ' + ', ' + output_filename)
     f.write('\n')
     for row in range(N_samples):
         f.write('  ' + str(round(d_list[row].x, 2)) +',   '+str(round(d_list[row].y, 2)) +',   ' + str(round(d_list[row].z, 2)) +
-                ',   ' + str(round(c_list[row].x, 2)) +',   ' + str(round(c_list[row].y, 2)) +',   ' + str(round(c_list[row].z, 2)))
+                ',   ' + str(round(c_list[row].x, 2)) +',   ' + str(round(c_list[row].y, 2)) +',   ' + str(round(c_list[row].z, 2)) +
+                ',   ' + str(round(abs((d_list[row] - c_list[row]).norm()), 3)))
         f.write('\n')
 
 
