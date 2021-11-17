@@ -53,7 +53,7 @@ class Vec3D:
         return str(self.matrix)
     
     'vector divition'
-    def __div__(self, other):
+    def __truediv__(self, other):
         return Vec3D(self.matrix/other)
     
     'vector right multiplication'
@@ -64,10 +64,22 @@ class Vec3D:
     def dot(self,other):
         return np.matmul(self.matrix.T, other.matrix)[0][0]
     
+    'vector cross product'
+    def cross(self, other):
+        cp = np.cross(self.matrix.T, other.matrix.T)[0]
+        return Vec3D(cp[0], cp[1], cp[2])
+    
     'get vector norm'
     def norm(self):
         return np.linalg.norm(self.matrix)
     
+    'equality'
+    def __eq__(self,other):
+        return np.isclose(self.x, other.x) and np.isclose(self.y, other.y) and np.isclose(self.z, other.z)
+    
+    'hash func'
+    def __hash__(self):
+        return hash((self.x, self.y,self.z))
     
 class Rot3D:
     '3D Rotation'
@@ -155,12 +167,16 @@ class Triangle:
     'Triangle class used for mesh'
     def __init__(self, v1, v2, v3):
         self.vertices = (v1,v2,v3)
+        self.center, self.radius = bound_sphere(v1,v2,v3)
+        if not( np.isclose((self.center - v2).norm(),self.radius)):
+            raise Exception('Error in bounding sphere calculation')
     
 class Mesh:
     'Mesh class'
     def __init__(self):
         self.triangles = dict()
         self.size = 0
+        self.triangle_tree = None
     
     
     def add(self,triangle):
@@ -244,12 +260,58 @@ def ProjectOnSegment(c,p,q):
         
     
     
+def bound_sphere(v1,v2,v3):
+    '''
+    Finds the smallest bounding sphere given three points in space
+
+    Parameters
+    ----------
+    v1 : Vec3D
+        first point
+    v2 : Vec3D
+        second point.
+    v3 : Vec3D
+        third point.
+
+    Returns
+    -------
+    center : TYPE
+        DESCRIPTION.
+    r : TYPE
+        DESCRIPTION.
+
+    '''
+    
+    long_edge = sorted([(v1,v2),(v2,v3), (v1,v3)], key = lambda x:(x[0]-x[1]).norm())[0]
+    a,b = long_edge
+    c = (set([v1,v2,v3]) - set([a,b])).pop()
+    #DEBUG
+    if c == a or c == b:
+        raise Exception()
+    q = (a+b)/2
+    #Try q with inequality check
+    if (b-q).dot((b-q)) == (a-q).dot(a-q) and \
+        (c-q).dot(c-q)<= (a-q).dot(a-q) and\
+        ((b-a).cross(c-a)).dot(q-a) == 0:
+            q = (a+b)/2
+    else:
+        f = (a+b)/2
+        u = a-f
+        v = c-f
+        d = (u.cross(v)).cross(u)
+        gama = (v.dot(v) - u.dot(u))/( (2*d).dot(v-u) )
+        if gama <= 0:
+            lam =0
+        else:
+            lam = gama
+        q = f+lam*d
+    r = (q-a).norm()
+    return (q, r)
     
     
     
     
-    
-    
+
     
     
     
