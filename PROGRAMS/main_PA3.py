@@ -5,6 +5,7 @@ Created on Sat Oct 23 22:22:02 2021
 
 @author: Yuxin Chen, hfan15
 """
+import numpy as np
 import time
 import assignment3_utilities as pa3
 import cismath as cis 
@@ -13,23 +14,17 @@ from registration import registration
 # =======================================Configurations========================================
 # =============================================================================================
 
-name = "J"
 
 
-#first_reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
+name = "A"
 
-<<<<<<< Updated upstream
-first_reading_file = 'PA3-' + name +'-Unknown-SampleReadingsTest.txt'
+if name in 'ABCDEF':
+    reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
+else:
+    reading_file = 'PA3-' + name +'-Unknown-SampleReadingsTest.txt'
 
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
-name = "F"
-first_reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
->>>>>>> Stashed changes
+
 output_filename = 'PA3-' + name + '-Output.txt'
-debug_output_filename = 'PA3-' + name + '-Debug-Output.txt' 
 
 first_body_filename = 'Problem3-BodyA.txt'
 
@@ -39,7 +34,7 @@ second_body_filename = 'Problem3-BodyB.txt'
 
 N_B, b_list, b_tip =pa3.read_body(second_body_filename)
 
-A_list, B_list, D_list, N_D, N_samples = pa3.read_sample_readings(first_reading_file, N_A, N_B)
+A_list, B_list, D_list, N_D, N_samples = pa3.read_sample_readings(reading_file, N_A, N_B)
 
 d_list = []
 for i in range(N_samples):
@@ -47,6 +42,7 @@ for i in range(N_samples):
     B_sublist = B_list[i*N_B:(i+1)*N_B]
     Fa = registration(a_list, A_sublist)
     Fb = registration(b_list, B_sublist)
+    F0 = cis.Frame(cis.Rot3D(np.eye(3)),cis.Vec3D(0,0,0))
     d = Fb.inv()*(Fa * a_tip)
     d_list.append(d)
 
@@ -81,8 +77,6 @@ print(round(average_error_d.x, 3), round(average_error_d.y, 3), round(average_er
 print('error in c = ')
 print(round(average_error_c.x, 3), round(average_error_c.y, 3), round(average_error_c.z, 3))
 print('error in e = ')
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
 print(average_error_e)
 print('\n')
 """
@@ -117,13 +111,6 @@ print('error in e = ')
 print(round(average_error_e, 3))
 
 """
-=======
-print(round(average_error_e, 3))
->>>>>>> Stashed changes
-=======
-print(round(average_error_e, 3))
->>>>>>> Stashed changes
-    
 
 
 # =============================================================================================
