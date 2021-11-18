@@ -23,25 +23,34 @@ def main(name):
     
     output_filename = 'PA3-' + name + '-Output.txt'
     
-    first_body_filename = 'Problem3-BodyA.txt'
+    A_body_filename = 'Problem3-BodyA.txt'
+    B_body_filename = 'Problem3-BodyB.txt'
     
-    N_A, a_list, a_tip =pa3.read_body(first_body_filename) 
     
-    second_body_filename = 'Problem3-BodyB.txt'
+    #read data files
+    N_A, a_list, a_tip =pa3.read_body(A_body_filename) 
     
-    N_B, b_list, b_tip =pa3.read_body(second_body_filename)
+    N_B, b_list, b_tip =pa3.read_body(B_body_filename)
     
     A_list, B_list, D_list, N_D, N_samples = pa3.read_sample_readings(reading_file, N_A, N_B)
     
+    
+    # initialize F0
+    F0 = cis.Frame(cis.Rot3D(np.eye(3)),cis.Vec3D(0,0,0))
+    
+    # calculate d
     d_list = []
     for i in range(N_samples):
         A_sublist = A_list[i*N_A:(i+1)*N_A]
         B_sublist = B_list[i*N_B:(i+1)*N_B]
+        #calculate Fa
         Fa = registration(a_list, A_sublist)
+        #calculate Fb
         Fb = registration(b_list, B_sublist)
-        F0 = cis.Frame(cis.Rot3D(np.eye(3)),cis.Vec3D(0,0,0))
+        
+        #calculate d
         d = Fb.inv()*(Fa * a_tip)
-        d_list.append(F0*d)
+        d_list.append(d)
     
     #Load Mesh
     Mesh = pa3.load_mesh_from_file('Problem3Mesh.sur')
@@ -54,13 +63,14 @@ def main(name):
     c_list = []
     for d in d_list:
         #print(Mesh.bf_closet_pt_on_mesh(d))
-        c_list.append(Mesh.closest_pt_on_mesh(d))
+        c_list.append(Mesh.closest_pt_on_mesh(F0*d))
     end = time.time()
-    print('='*5+'Time Elapsed Using Brutal Force:{:.3f}'.format(end-start)+'='*5) 
-    # calculate e
+    print('='*5+'Time Elapsed Using Brutal Force: {:.3f}s'.format(end-start)+'='*5) 
+    # calculate norm of d minus c
     e = []
     for row in range(N_samples):
         e.append(abs((d_list[row] - c_list[row]).norm()))
+    
     
     """
     #read debug output file provided by professor
@@ -87,7 +97,7 @@ def main(name):
         #print(Mesh.bf_closet_pt_on_mesh(d))
         c_list.append(Mesh.closest_pt_on_mesh(d))
     end = time.time()
-    print('='*5+'Time Elapsed Using KDTree:{:.3f}'.format(end-start)+'='*5) 
+    print('='*5+'Time Elapsed Using KDTree: {:.3f}s'.format(end-start)+'='*5) 
     # calculate e
     e = []
     for row in range(N_samples):
@@ -116,9 +126,9 @@ def main(name):
         f.write(str(N_samples) +' ' + output_filename)
         f.write('\n')
         for row in range(N_samples):
-            f.write('  ' + str(round(d_list[row].x, 2)) +',   '+str(round(d_list[row].y, 2)) +',   ' + str(round(d_list[row].z, 2)) +
-                    ',   ' + str(round(c_list[row].x, 2)) +',   ' + str(round(c_list[row].y, 2)) +',   ' + str(round(c_list[row].z, 2)) +
-                    ',   ' + str(round(abs((d_list[row] - c_list[row]).norm()), 3)) + ' ')
+            f.write('  ' + str(round(d_list[row].x, 2)) +'   '+str(round(d_list[row].y, 2)) +'   ' + str(round(d_list[row].z, 2)) +
+                    '      ' + str(round(c_list[row].x, 2)) +'   ' + str(round(c_list[row].y, 2)) +'   ' + str(round(c_list[row].z, 2)) +
+                    '      ' + str(round(abs((d_list[row] - c_list[row]).norm()), 3)) + ' ')
             f.write('\n')
 
 
