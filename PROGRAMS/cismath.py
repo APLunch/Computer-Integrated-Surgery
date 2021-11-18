@@ -176,7 +176,7 @@ class Mesh:
     def __init__(self):
         self.triangles = dict()
         self.size = 0
-        self.triangle_tree = None
+        self.KDTree = None
     
     
     def add(self,triangle):
@@ -195,6 +195,10 @@ class Mesh:
         '''
         self.triangles[self.size] = triangle
         self.size += 1
+    
+    def make_tree(self):
+        'make KDTree structure'
+        self.KDTree = KDTree(self.triangles.values())
     
     def bf_closet_pt_on_mesh(self,a):
         '''
@@ -215,33 +219,71 @@ class Mesh:
         closest_pt = Vec3D(9999999,9999999,9999999)
         #General case
         for (i,tri) in self.triangles.items():
-            p,r,q = tri.vertices
-            #Configure lstsq
-            A = np.hstack([(q-p).matrix, (r-p).matrix])
-            b = (a-p).matrix
-            res = np.linalg.lstsq(A,b,rcond=None)
-            #unpack lambda and mu
-            lam = res[0][0][0]
-            miu = res[0][1][0]
-            c = p+lam*(q-p)+miu*(r-p)
-            #Check condition
-            if lam >= 0 and miu >= 0 and (lam+miu) <= 1:
-                #Closest pt inside triangle
-                if (c-a).norm() < (closest_pt-a).norm():
-                    closest_pt = c
-            else:
-                #closest pt on edge
-                if lam < 0:
-                    c = ProjectOnSegment(c,r,p)
-                elif miu < 0:
-                    c = ProjectOnSegment(c,p,q)
-                elif lam+miu > 1:
-                    c = ProjectOnSegment(c,q,r)
-                #Replace closest_pt with closer c, if found
-                if (c-a).norm() < (closest_pt-a).norm():
-                    closest_pt = c
+            c = closest_pt_on_triangle(tri,a)
+            if (c-a).norm() < (closest_pt-a).norm():
+                closest_pt = c
         return closest_pt
-                
+    
+    def closest_pt_on_mesh(self, a):
+        '''
+        Find the closest point on mesh using either a KDTree search or a bf search.
+        If the KDTree is constructed, then the function uses KDTree search, else it 
+        calls bf_closet_pt_on_mesh
+        Parameters
+        ----------
+        a : Vec3D
+            Point in space
+
+        Returns
+        -------
+        The closest point on mesh
+
+        '''
+        if self.KDTree != None:
+            p, r = self.KDTree.find(a)
+            return p
+        else:
+            return self.bf_closet_pt_on_mesh(a)
+        
+
+
+
+def closest_pt_on_triangle(tri, point):
+    '''
+    Finds the closest point on a given triangle from a given point
+
+    Parameters
+    ----------
+    triangle : Triangle
+    point : Vec3D
+    Returns
+    -------
+    result: Vec3D
+        The closest pt on the triangle
+    '''
+    p,r,q = tri.vertices
+    #Configure lstsq
+    A = np.hstack([(q-p).matrix, (r-p).matrix])
+    b = (point-p).matrix
+    res = np.linalg.lstsq(A,b,rcond=None)
+    #unpack lambda and mu
+    lam = res[0][0][0]
+    miu = res[0][1][0]
+    c = p+lam*(q-p)+miu*(r-p)
+    #Check condition
+    if lam >= 0 and miu >= 0 and (lam+miu) <= 1:
+        pass
+    else:
+        #closest pt on edge
+        if lam < 0:
+            c = ProjectOnSegment(c,r,p)
+        elif miu < 0:
+            c = ProjectOnSegment(c,p,q)
+        elif lam+miu > 1:
+            c = ProjectOnSegment(c,q,r)
+        
+    return c
+
 def ProjectOnSegment(c,p,q):
     '''
     helper function that determines the projection of closest point on a triangle's edge 
@@ -309,9 +351,136 @@ def bound_sphere(v1,v2,v3):
     return (q, r)
     
     
-    
+
+        
+
     
 
+class KDTree:
+    '3DTree'
+    def __init__(self, List, depth = 8):
+        x_sorted = sorted(List, key = lambda i : i.center.x)
+        self.Lower = KDTreeNode(x_sorted[ : len(x_sorted)//2], 1 ,depth)
+        self.Higher = KDTreeNode(x_sorted[len(x_sorted)//2 : ], 1, depth)
+        self.midvalue = x_sorted[len(x_sorted)//2].center.x
+        self.Lower_HighBound = self.midvalue + x_sorted[len(x_sorted)//2 - 1].radius
+        self.Higher_LowerBound = self.midvalue - x_sorted[len(x_sorted)//2].radius
+    
+    def find(self,point):
+        if point.x < self.midvalue:
+            result  = self.Lower.find(point)
+            (cur_opt_c,cur_opt_distance) = result
+            if point.x + cur_opt_distance > self.Higher_LowerBound:
+                return min(result, self.Higher.find(point),key = lambda x:x[1])
+        else:
+            result  = self.Higher.find(point)
+            (cur_opt_c,cur_opt_distance) = result
+            if point.x - cur_opt_distance < self.Lower_HighBound:
+                return min(result, self.Lower.find(point),key = lambda x:x[1])
+        
+        return result
+    
+        
+    
+    
+    
+class KDTreeNode:
+    'KDTree Node Data Stracture'
+    def __init__(self,List,level,depth):
+        #Check if is leaf node
+        self.isLeaf = (level == depth-1) or len(List) == 1
+        #determine which axis to split
+        self.level = level
+        self.split_by = 'xyz'[level % 3]
+        if self.split_by == 'x':
+            sort_key = lambda i:i.center.x
+        if self.split_by == 'y':
+            sort_key = lambda i:i.center.y
+        if self.split_by == 'z':
+            sort_key = lambda i:i.center.z
+        sL = sorted(List, key = sort_key)
+        #If is leaf node then store rest of list
+        if self.isLeaf:
+            self.container = List
+        else:
+            #Construct sub trees
+            self.Lower = KDTreeNode(sL[: len(sL)//2], level+1, depth)
+            self.Higher = KDTreeNode(sL[len(sL)//2 : ], level+1, depth)
+            #Detemine Mid value
+            if self.split_by == 'x':
+                self.midvalue = sL[len(sL)//2].center.x
+            if self.split_by == 'y':
+                self.midvalue = sL[len(sL)//2].center.y
+            if self.split_by == 'z':
+                self.midvalue = sL[len(sL)//2].center.z
+            #Determine subtree bounding box
+            self.Lower_HighBound = self.midvalue + sL[len(sL)//2 - 1].radius
+            self.Higher_LowerBound = self.midvalue - sL[len(sL)//2].radius
+    
+    
+    def find(self,point):
+        'Find the closest point on triangle'
+        #If leaf node, calc potential closest point
+        if self.isLeaf:
+            all_closest_pts = sorted([ closest_pt_on_triangle(tri, point) for tri in self.container],key = lambda x:(point-x).norm())
+            cur_opt_c = all_closest_pts[0]
+            cur_opt_distance = (point-cur_opt_c).norm()
+            return (cur_opt_c,cur_opt_distance)
+            
+            
+        #Recursive finding leaf node and check finding returned by child
+        if self.split_by == 'x':
+            if point.x < self.midvalue:
+                result  = self.Lower.find(point)
+                (cur_opt_c,cur_opt_distance) = result
+                if point.x + cur_opt_distance > self.Higher_LowerBound:
+                    return min(result, self.Higher.find(point),key = lambda x:x[1])
+            else:
+                result  = self.Higher.find(point)
+                (cur_opt_c,cur_opt_distance) = result
+                if point.x - cur_opt_distance < self.Lower_HighBound:
+                    return min(result, self.Lower.find(point),key = lambda x:x[1])
+        if self.split_by == 'y':
+            if point.y < self.midvalue:
+                result  = self.Lower.find(point)
+                (cur_opt_c,cur_opt_distance) = result
+                if point.y + cur_opt_distance > self.Higher_LowerBound:
+                    return min(result, self.Higher.find(point),key = lambda x:x[1])
+            else:
+                result  = self.Higher.find(point)
+                (cur_opt_c,cur_opt_distance) = result
+                if point.y - cur_opt_distance < self.Lower_HighBound:
+                    return min(result, self.Lower.find(point),key = lambda x:x[1])
+        if self.split_by == 'z':
+            if point.z < self.midvalue:
+                result  = self.Lower.find(point)
+                (cur_opt_c,cur_opt_distance) = result
+                if point.z + cur_opt_distance > self.Higher_LowerBound:
+                    return min(result, self.Higher.find(point),key = lambda x:x[1])
+            else:
+                result  = self.Higher.find(point)
+                (cur_opt_c,cur_opt_distance) = result
+                if point.z - cur_opt_distance < self.Lower_HighBound:
+                    return min(result, self.Lower.find(point),key = lambda x:x[1])
+    
+        return result
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
