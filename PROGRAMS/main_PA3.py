@@ -95,7 +95,7 @@ def main(name):
     Mesh.make_tree()
     for d in d_list:
         #print(Mesh.bf_closet_pt_on_mesh(d))
-        c_list.append(Mesh.closest_pt_on_mesh(d))
+        c_list.append(Mesh.closest_pt_on_mesh(F0*d))
     end = time.time()
     print('='*5+'Time Elapsed Using KDTree: {:.3f}s'.format(end-start)+'='*5) 
     # calculate e
