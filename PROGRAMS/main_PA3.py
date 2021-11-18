@@ -126,9 +126,10 @@ def main(name):
         f.write(str(N_samples) +' ' + output_filename)
         f.write('\n')
         for row in range(N_samples):
-            f.write('  ' + str(round(d_list[row].x, 2)) +'   '+str(round(d_list[row].y, 2)) +'   ' + str(round(d_list[row].z, 2)) +
-                    '      ' + str(round(c_list[row].x, 2)) +'   ' + str(round(c_list[row].y, 2)) +'   ' + str(round(c_list[row].z, 2)) +
-                    '      ' + str(round(abs((d_list[row] - c_list[row]).norm()), 3)) + ' ')
+            s = '  {:9.2f}{:9.2f}{:9.2f}   {:9.2f}{:9.2f}{:9.2f}   {:9.3f}'.format(d_list[row].x,d_list[row].y,d_list[row].z,c_list[row].x,
+                                                                             c_list[row].y,c_list[row].z,(d_list[row] - c_list[row]).norm())
+            f.write(s)
+            
             f.write('\n')
 
 
