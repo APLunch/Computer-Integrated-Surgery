@@ -18,10 +18,13 @@ name = "J"
 
 #first_reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
 
+<<<<<<< Updated upstream
 first_reading_file = 'PA3-' + name +'-Unknown-SampleReadingsTest.txt'
 
 <<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 name = "F"
 first_reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
 >>>>>>> Stashed changes
@@ -79,6 +82,7 @@ print('error in c = ')
 print(round(average_error_c.x, 3), round(average_error_c.y, 3), round(average_error_c.z, 3))
 print('error in e = ')
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 print(average_error_e)
 print('\n')
 """
@@ -113,6 +117,9 @@ print('error in e = ')
 print(round(average_error_e, 3))
 
 """
+=======
+print(round(average_error_e, 3))
+>>>>>>> Stashed changes
 =======
 print(round(average_error_e, 3))
 >>>>>>> Stashed changes
