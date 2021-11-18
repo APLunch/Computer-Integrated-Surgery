@@ -20,6 +20,11 @@ name = "J"
 
 first_reading_file = 'PA3-' + name +'-Unknown-SampleReadingsTest.txt'
 
+<<<<<<< Updated upstream
+=======
+name = "F"
+first_reading_file = 'PA3-' + name +'-Debug-SampleReadingsTest.txt'
+>>>>>>> Stashed changes
 output_filename = 'PA3-' + name + '-Output.txt'
 debug_output_filename = 'PA3-' + name + '-Debug-Output.txt' 
 
@@ -69,10 +74,11 @@ d_output, c_output, e_output = pa3.get_debug_output(debug_output_filename)
 # compare our output with debug output
 average_error_d, average_error_c, average_error_e = pa3.compare_output(d_list, c_list, e, d_output, c_output, e_output, N_samples)
 print('error in d = ')
-print(average_error_d.x, average_error_d.y, average_error_d.z)
+print(round(average_error_d.x, 3), round(average_error_d.y, 3), round(average_error_d.z, 3))
 print('error in c = ')
-print(average_error_c.x, average_error_c.y, average_error_c.z)
+print(round(average_error_c.x, 3), round(average_error_c.y, 3), round(average_error_c.z, 3))
 print('error in e = ')
+<<<<<<< Updated upstream
 print(average_error_e)
 print('\n')
 """
@@ -107,6 +113,9 @@ print('error in e = ')
 print(round(average_error_e, 3))
 
 """
+=======
+print(round(average_error_e, 3))
+>>>>>>> Stashed changes
     
 
 
