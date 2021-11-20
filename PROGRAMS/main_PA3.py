@@ -53,7 +53,7 @@ def main(name):
         d_list.append(d)
     
     #Load Mesh
-    Mesh = pa3.load_mesh_from_file('Problem3Mesh.sur')
+    Mesh = pa3.load_mesh_from_file('Problem3MeshFile.sur')
     
     
     """

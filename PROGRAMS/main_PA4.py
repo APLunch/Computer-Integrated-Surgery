@@ -160,11 +160,11 @@ print('='*5+'Time Elapsed Using KDTree: {:.3f}s'.format(end-start)+'='*5)
 s_output, c_output, e_output = pa3.get_debug_output(debug_output_filename)
 # compare our output with debug output
 average_error_s, average_error_c, average_error_e = pa3.compare_output(s_list, c_list, e_list, s_output, c_output, e_output, N_samples)
-print('error in d = ')
+print('error in s = ')
 print(round(average_error_s.x, 3), round(average_error_s.y, 3), round(average_error_s.z, 3))
 print('error in c = ')
 print(round(average_error_c.x, 3), round(average_error_c.y, 3), round(average_error_c.z, 3))
-print('error in e = ')
+print('error in norm = ')
 print(average_error_e)
 print('\n')
 
