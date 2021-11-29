@@ -196,9 +196,9 @@ class Mesh:
         self.triangles[self.size] = triangle
         self.size += 1
     
-    def make_tree(self):
+    def make_tree(self, depth = 8):
         'make KDTree structure'
-        self.KDTree = KDTree(self.triangles.values())
+        self.KDTree = KDTree(self.triangles.values(), depth = depth)
     
     def bf_closet_pt_on_mesh(self,a):
         '''

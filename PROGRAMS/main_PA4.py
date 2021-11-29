@@ -11,6 +11,7 @@ import assignment3_utilities as pa3
 import cismath as cis 
 from registration import registration
 import math
+import plotter
 
 name = "B"
 
@@ -68,12 +69,12 @@ check = 0
 n = 0
 
 start = time.time() 
-Mesh.make_tree()
+Mesh.make_tree(depth = -1)
 #Input: M, d, F0, n0 check
 
 
 
-while check < 3:
+while check < 10:
     # step 1: matching
     
     # create two empty lists A and B, which is different from Body A and Body B
@@ -104,9 +105,9 @@ while check < 3:
      
             
     # step 2: transformation part
-    
     n += 1
     F.append(registration(A_group, B_group))
+    
     
     E_list = []
     for k in range(len(A_group)):
@@ -142,11 +143,12 @@ while check < 3:
     
     # Step 4 :(iteration) Termination 
     
-    if 0.95 <= error_mean[n]/error_mean[n-1] <= 1:
+    if 0.98 <= error_mean[n]/error_mean[n-1] <= 1 :
         check += 1
     else:
         check = 0
     
+
 
 
 
