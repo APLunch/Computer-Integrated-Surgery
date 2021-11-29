@@ -11,7 +11,6 @@ import assignment3_utilities as pa3
 import cismath as cis 
 from registration import registration
 import math
-import plotter
 
 name = "B"
 
@@ -68,12 +67,10 @@ check = 0
 
 n = 0
 
-start = time.time() 
+ 
 Mesh.make_tree(depth = -1)
+start = time.time()
 #Input: M, d, F0, n0 check
-
-
-
 while check < 10:
     # step 1: matching
     
@@ -102,7 +99,7 @@ while check < 10:
         if e < threshold[n]:
             A_group.append(d)
             B_group.append(c)
-     
+        
             
     # step 2: transformation part
     n += 1
@@ -138,7 +135,8 @@ while check < 10:
     # Step 3: adjustment
     
     #adjust threshold
-    threshold.append(3*error_mean[n])
+    eta = 3*error_mean[n]
+    threshold.append(eta)
     
     
     # Step 4 :(iteration) Termination 

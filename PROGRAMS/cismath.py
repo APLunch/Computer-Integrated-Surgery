@@ -62,7 +62,7 @@ class Vec3D:
     
     'vector dot product'
     def dot(self,other):
-        return np.matmul(self.matrix.T, other.matrix)[0][0]
+        return self.x*other.x+self.y*other.y+self.z*other.z
     
     'vector cross product'
     def cross(self, other):
@@ -71,7 +71,7 @@ class Vec3D:
     
     'get vector norm'
     def norm(self):
-        return np.linalg.norm(self.matrix)
+        return np.sqrt(self.x**2+self.y**2+self.z**2)
     
     'equality'
     def __eq__(self,other):
@@ -217,11 +217,16 @@ class Mesh:
         '''
         
         closest_pt = Vec3D(9999999,9999999,9999999)
+        closest_dis = 9999999
         #General case
         for (i,tri) in self.triangles.items():
-            c = closest_pt_on_triangle(tri,a)
-            if (c-a).norm() < (closest_pt-a).norm():
-                closest_pt = c
+            #Pre-check with bounding sphere
+            if (a-tri.center).norm()-tri.radius < closest_dis:
+                #Check possible closer point
+                c = closest_pt_on_triangle(tri,a)
+                if (c-a).norm() < closest_dis:
+                    closest_pt = c
+                    closest_dis = (c-a).norm()
         return closest_pt
     
     def closest_pt_on_mesh(self, a):
@@ -402,6 +407,9 @@ class KDTreeNode:
         #If is leaf node then store rest of list
         if self.isLeaf:
             self.container = List
+            self.lil_mesh = Mesh()
+            for tri in List:
+                self.lil_mesh.add(tri)
         else:
             #Construct sub trees
             self.Lower = KDTreeNode(sL[: len(sL)//2], level+1, depth)
@@ -422,8 +430,7 @@ class KDTreeNode:
         'Find the closest point on triangle'
         #If leaf node, calc potential closest point
         if self.isLeaf:
-            all_closest_pts = sorted([ closest_pt_on_triangle(tri, point) for tri in self.container],key = lambda x:(point-x).norm())
-            cur_opt_c = all_closest_pts[0]
+            cur_opt_c = self.lil_mesh.bf_closet_pt_on_mesh(point)
             cur_opt_distance = (point-cur_opt_c).norm()
             return (cur_opt_c,cur_opt_distance)
             
