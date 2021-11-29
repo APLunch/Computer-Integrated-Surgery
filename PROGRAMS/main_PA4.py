@@ -11,6 +11,7 @@ import assignment3_utilities as pa3
 import cismath as cis 
 from registration import registration
 import math
+import random
 
 name = "B"
 
@@ -57,11 +58,11 @@ threshold = []
 threshold.append(5.0)
 
 sigma = []
-sigma.append(0.0)
+#sigma.append(0.0)
 error_max = []
-error_max.append(0.0)
+#error_max.append(0.0)
 error_mean = []
-error_mean.append(1.0)
+#error_mean.append(0.0)
 
 check = 0
 
@@ -70,41 +71,35 @@ n = 0
  
 Mesh.make_tree(depth = -1)
 start = time.time()
+
+d_list_sample = random.sample(d_list,len(d_list)//3)
+
 #Input: M, d, F0, n0 check
-while check < 10:
+while check < 8:
     # step 1: matching
-    
     # create two empty lists A and B, which is different from Body A and Body B
     A_group = []
     B_group = []
-    
-    
-    
-    
     c_list = []
     s_list = []
     e_list = []
     
-    for d in d_list:
+    
+    for d in d_list_sample:
         #print(Mesh.bf_closet_pt_on_mesh(d))
         c = Mesh.closest_pt_on_mesh(F[n] * d)
         c_list.append(c)
-        
         s = F[n]*d
         s_list.append(s)
-        
         e = (s -c).norm()
         e_list.append(e)
-        
         if e < threshold[n]:
             A_group.append(d)
             B_group.append(c)
-        
-            
-    # step 2: transformation part
-    n += 1
-    F.append(registration(A_group, B_group))
     
+    print(len(A_group))
+    # step 2: transformation part
+    F.append(registration(A_group, B_group))
     
     E_list = []
     for k in range(len(A_group)):
@@ -137,14 +132,17 @@ while check < 10:
     #adjust threshold
     eta = 3*error_mean[n]
     threshold.append(eta)
-    
+    print(error_mean[n])
     
     # Step 4 :(iteration) Termination 
     
     if 0.98 <= error_mean[n]/error_mean[n-1] <= 1 :
         check += 1
+        if check == 7:
+            d_list_sample = d_list
     else:
         check = 0
+    n += 1
     
 
 

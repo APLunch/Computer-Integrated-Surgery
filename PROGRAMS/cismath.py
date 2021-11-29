@@ -6,6 +6,7 @@ Created on Sun Oct 17 16:21:15 2021
 """
 
 import numpy as np
+import time
 
 class Vec3D:
     '3D point in space'
@@ -18,8 +19,7 @@ class Vec3D:
             self.matrix = (np.array(
                                 [[x],
                                  [y],
-                                 [z]]
-                                 ))
+                                 [z]]))
             self.x = x
             self.y = y
             self.z = z
@@ -42,7 +42,7 @@ class Vec3D:
 
     'vector-vector subtraction'
     def __sub__(self, other):
-        return Vec3D(self.matrix - other.matrix)
+        return Vec3D(self.matrix-other.matrix)
     
     'vector-scaler multiplication'
     def __mul__(self, other):
@@ -224,9 +224,10 @@ class Mesh:
             if (a-tri.center).norm()-tri.radius < closest_dis:
                 #Check possible closer point
                 c = closest_pt_on_triangle(tri,a)
-                if (c-a).norm() < closest_dis:
+                disvec = c-a
+                if disvec.norm() < closest_dis:
                     closest_pt = c
-                    closest_dis = (c-a).norm()
+                    closest_dis = disvec.norm()
         return closest_pt
     
     def closest_pt_on_mesh(self, a):
@@ -267,14 +268,16 @@ def closest_pt_on_triangle(tri, point):
         The closest pt on the triangle
     '''
     p,r,q = tri.vertices
+    q_p = q-p
+    r_p = r-p
     #Configure lstsq
-    A = np.hstack([(q-p).matrix, (r-p).matrix])
+    A = np.hstack([(q_p).matrix, r_p.matrix])
     b = (point-p).matrix
-    res = np.linalg.lstsq(A,b,rcond=None)
+    res = np.linalg.lstsq(A,b,rcond=1e-8)
     #unpack lambda and mu
     lam = res[0][0][0]
     miu = res[0][1][0]
-    c = p+lam*(q-p)+miu*(r-p)
+    c = p+lam*(q_p)+miu*r_p
     #Check condition
     if lam >= 0 and miu >= 0 and (lam+miu) <= 1:
         pass
@@ -300,9 +303,10 @@ def ProjectOnSegment(c,p,q):
         The projected closest point on edge
 
     '''
-    lam = (c-p).dot((q-p))/((q-p).dot(q-p))
+    i = q-p
+    lam = (c-p).dot(i)/(i.dot(i))
     lam_seg = max(0, min(lam,1))
-    c_projection = p + lam_seg*(q-p)
+    c_projection = p + lam_seg*(i)
     return c_projection
         
     
