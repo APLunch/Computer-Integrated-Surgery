@@ -8,6 +8,8 @@ Created on Wed Oct 27 12:59:30 2021
 import numpy as np
 import cismath as cis 
 from registration import registration
+import random
+import math
 
 
 
@@ -154,7 +156,96 @@ def compare_output(d_list, c_list, e, d_output, c_output, e_output, N_samples):
          
         
         
+def ICP(d_list, Mesh):
+    # Step 0: Initialization
+    F = []
+    # initialize F0
+    F.append(cis.Frame(cis.Rot3D(np.eye(3)),cis.Vec3D(0,0,0)))
+    threshold = []
+    # initialize threshold0
+    threshold.append(5.0)
+    sigma = []
+    #sigma.append(0.0)
+    error_max = []
+    #error_max.append(0.0)
+    error_mean = []
+    #error_mean.append(0.0)
+    
+    check = 0
+    n = 0
+    d_list_sample = random.sample(d_list,len(d_list)//3)
+    
+    #Input: M, d, F0, n0 check
+    while check < 8:
+        # step 1: matching
+        # create two empty lists A and B, which is different from Body A and Body B
+        A_group = []
+        B_group = []
+        c_list = []
+        s_list = []
+        e_list = []
         
+        
+        for d in d_list_sample:
+            #print(Mesh.bf_closet_pt_on_mesh(d))
+            c = Mesh.closest_pt_on_mesh(F[n] * d)
+            c_list.append(c)
+            s = F[n]*d
+            s_list.append(s)
+            e = (s -c).norm()
+            e_list.append(e)
+            if e < threshold[n]:
+                A_group.append(d)
+                B_group.append(c)
+        
+        print(len(A_group))
+        # step 2: transformation part
+        F.append(registration(A_group, B_group))
+        
+        E_list = []
+        for k in range(len(A_group)):
+            E = B_group[k] - F[n] * A_group[k]
+            E_list.append(E)
+        
+        
+        #calculate sigma, error_max and mean error
+        sum_dot = 0
+        sum_root = 0
+        em = 0 
+        for k in range(len(E_list)):
+            e_dot = E_list[k].dot(E_list[k])
+                
+            sum_dot += e_dot
+            
+            if em < math.sqrt(e_dot):
+                em = math.sqrt(e_dot)
+                
+            sum_root += math.sqrt(e_dot)
+            
+        sigma.append(math.sqrt(sum_dot)/len(E_list))
+        error_max.append(em)
+        error_mean.append(sum_root/len(E_list))
+        
+        
+        
+        # Step 3: adjustment
+        
+        #adjust threshold
+        eta = 3*error_mean[n]
+        threshold.append(eta)
+        print(error_mean[n])
+        
+        # Step 4 :(iteration) Termination 
+        
+        if 0.98 <= error_mean[n]/error_mean[n-1] <= 1 :
+            check += 1
+            if check == 7:
+                d_list_sample = d_list
+        else:
+            check = 0
+        n += 1
+        
+    return (s_list,c_list,e_list)
         
         
         
