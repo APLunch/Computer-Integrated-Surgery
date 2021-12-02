@@ -85,7 +85,7 @@ def main(name):
 
 
 #Run with all datasets#
-for name in 'ABCDEFGHJ':
-    print('+++++++++++++++Data Set{}+++++++++++++++++'.format(name))
+for name in 'ABCDEF':
+    print('+++++++++++++++Data Set {}+++++++++++++++++'.format(name))
     main(name)
 

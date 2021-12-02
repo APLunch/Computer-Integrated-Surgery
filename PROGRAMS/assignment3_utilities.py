@@ -173,9 +173,10 @@ def ICP(d_list, Mesh):
     
     check = 0
     n = 0
-    d_list_sample = random.sample(d_list,len(d_list)//3)
+    d_list_sample = random.sample(d_list,len(d_list)//4)
     
     #Input: M, d, F0, n0 check
+    iteration_with_sample = 0
     while check < 8:
         # step 1: matching
         # create two empty lists A and B, which is different from Body A and Body B
@@ -198,7 +199,6 @@ def ICP(d_list, Mesh):
                 A_group.append(d)
                 B_group.append(c)
         
-        print(len(A_group))
         # step 2: transformation part
         F.append(registration(A_group, B_group))
         
@@ -229,29 +229,36 @@ def ICP(d_list, Mesh):
         
         
         # Step 3: adjustment
-        
         #adjust threshold
         eta = 3*error_mean[n]
         threshold.append(eta)
-        print(error_mean[n])
+        #print(error_mean[n])
         
         # Step 4 :(iteration) Termination 
-        
-        if 0.98 <= error_mean[n]/error_mean[n-1] <= 1 :
+        if 0.98 <= error_mean[n]/error_mean[n-1] <= 1.005:
             check += 1
-            if check == 7:
+            if check == 7 and d_list_sample != d_list:
                 d_list_sample = d_list
+                iteration_with_sample = n
         else:
             check = 0
-        n += 1
         
+        #Sigma, error max and error mean termination condition
+        n += 1
+        if sigma[-1] < 0.0008 and error_mean[-1] < 0.0008 and error_max[-1] < 0.0008:
+            break
         #Hard Change if not converging
-        if n > 100:
+        if n > 75 and d_list_sample != d_list:
+            iteration_with_sample = n
             d_list_sample = d_list
+        if n > 150:
+            break
         
     print("Error_Max:",error_max[-1])
     print("Sigma:",sigma[-1])
     print("Error_Mean:",error_mean[-1])
+    print("Iteration with sampled d: {}".format(iteration_with_sample))
+    print("Total Iteration: {}".format(n))
     return (s_list,c_list,e_list)
         
         
