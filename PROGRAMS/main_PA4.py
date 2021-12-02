@@ -13,7 +13,7 @@ from registration import registration
 import math
 import random
 
-def main(name):  
+def main(name, bf = False):  
     if name in 'ABCDEF':
         reading_file = 'PA4-' + name +'-Debug-SampleReadingsTest.txt'
     else:
@@ -25,7 +25,8 @@ def main(name):
        
     #Load Mesh
     Mesh = pa4.load_mesh_from_file('Problem4MeshFile.sur')
-    Mesh.make_tree(depth = -1)
+    if not(bf):
+        Mesh.make_tree(depth = -1)
         
     #read data files
     N_A, a_list, a_tip =pa4.read_body(A_body_filename)     
@@ -82,10 +83,14 @@ def main(name):
             f.write(sp)
                 
             f.write('\n')
+    icp_time = end-start
+    return icp_time
 
 
 #Run with all datasets#
-for name in 'ABCDEF':
+for name in 'ABCDEFGHJ':
     print('+++++++++++++++Data Set {}+++++++++++++++++'.format(name))
     main(name)
+
+
 

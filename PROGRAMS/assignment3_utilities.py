@@ -175,6 +175,7 @@ def ICP(d_list, Mesh):
     n = 0
     d_list_sample = random.sample(d_list,len(d_list)//4)
     
+    
     #Input: M, d, F0, n0 check
     iteration_with_sample = 0
     while check < 8:
@@ -246,7 +247,10 @@ def ICP(d_list, Mesh):
         #Sigma, error max and error mean termination condition
         n += 1
         if sigma[-1] < 0.0008 and error_mean[-1] < 0.0008 and error_max[-1] < 0.0008:
-            break
+            if d_list_sample != d_list:
+                d_list_sample = d_list
+            else:
+                break
         #Hard Change if not converging
         if n > 75 and d_list_sample != d_list:
             iteration_with_sample = n
