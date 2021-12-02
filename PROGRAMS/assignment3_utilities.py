@@ -245,6 +245,13 @@ def ICP(d_list, Mesh):
             check = 0
         n += 1
         
+        #Hard Change if not converging
+        if n > 100:
+            d_list_sample = d_list
+        
+    print("Error_Max:",error_max[-1])
+    print("Sigma:",sigma[-1])
+    print("Error_Mean:",error_mean[-1])
     return (s_list,c_list,e_list)
         
         
