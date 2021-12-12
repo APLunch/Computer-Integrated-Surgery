@@ -165,8 +165,9 @@ def matrix_to_vec_list(mat):
     
 class Triangle:
     'Triangle class used for mesh'
-    def __init__(self, v1, v2, v3):
+    def __init__(self, v1, v2, v3, i1, i2, i3):
         self.vertices = (v1,v2,v3)
+        self.v_index = (i1,i2,i3)
         self.center, self.radius = bound_sphere(v1,v2,v3)
         if not( np.isclose((self.center - v2).norm(),self.radius)):
             raise Exception('Error in bounding sphere calculation')

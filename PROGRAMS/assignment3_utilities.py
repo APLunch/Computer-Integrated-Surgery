@@ -101,8 +101,10 @@ def load_mesh_from_file(filename):
         #Get triangles
         for i in range(N_Vertex+2,len(lines)):
             line = lines[i].strip()
-            v1,v2,v3 = [vertices[int(word.strip())] for word in lines[i].split()[:3]]
-            tri = cis.Triangle(v1,v2,v3)
+            #get index of vertices
+            i1,i2,i3 = [int(word.strip()) for word in lines[i].split()[:3] ]
+            v1,v2,v3 = [vertices[index] for index in [i1,i2,i3]]
+            tri = cis.Triangle(v1,v2,v3, i1,i2,i3)
             Mesh.add(tri)
     return Mesh
 
