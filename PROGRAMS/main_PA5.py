@@ -49,3 +49,6 @@ def main(name, bf = False):
         #calculate d
         d = Fb.inv()*(Fa * a_tip)
         d_list.append(d)
+        
+    #
+    weights = pa5.ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes)

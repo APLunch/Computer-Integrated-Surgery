@@ -10,7 +10,7 @@ import cismath as cis
 from registration import registration
 import random
 import math
-import re
+from scipy.optimize import least_squares
 
 
 # read the calbody txt file
@@ -96,6 +96,7 @@ def load_mesh_from_file(filename):
             line = lines[i].strip()
             coordinate = [float(word.strip()) for word in line.split()]
             vertices.append(cis.Vec3D(coordinate[0],coordinate[1],coordinate[2]))
+        Mesh.vertices = vertices
         #Get number of triangles
         N_triangles = int(lines[N_Vertex+1].strip())
         #Get triangles
@@ -188,14 +189,11 @@ def ICP(d_list, Mesh):
         c_list = []
         s_list = []
         e_list = []
-        
-        
         for d in d_list_sample:
-            #print(Mesh.bf_closet_pt_on_mesh(d))
-            c = Mesh.closest_pt_on_mesh(F[n] * d)
-            c_list.append(c)
             s = F[n]*d
             s_list.append(s)
+            c,tri = Mesh.closest_pt_on_mesh(s)
+            c_list.append(c)
             e = (s -c).norm()
             e_list.append(e)
             if e < threshold[n]:
@@ -265,7 +263,7 @@ def ICP(d_list, Mesh):
     print("Error_Mean:",error_mean[-1])
     print("Iteration with sampled d: {}".format(iteration_with_sample))
     print("Total Iteration: {}".format(n))
-    return (s_list,c_list,e_list)
+    return (F[-1],s_list,c_list,e_list)
         
 def read_modes(fname):
     '''
@@ -292,7 +290,7 @@ def read_modes(fname):
             if 'Mode ' in lines[i]:
                 mode = []
                 for j in range(i+1, i+1+N_vertex):
-                    x,y,z = [ word.strip(' ,') for word in lines[j].split()]
+                    x,y,z = [ (float)(word.strip(' ,')) for word in lines[j].split()]
                     mode.append(cis.Vec3D(x,y,z))
                 modes.append(mode)
                 i = i+N_vertex
@@ -301,9 +299,115 @@ def read_modes(fname):
     return modes
         
         
+def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
+    cost = 999
+    cost_check = 0
+    while cost > 1:
+        F_reg = ICP(d_list,Mesh)[0]
+        s_list = [ F_reg*d for d in d_list ]
+        while cost_check < 5: 
+            c_tri_list = [ Mesh.closest_pt_on_mesh(s) for s in s_list ]
+            c_list = [ x[0] for x in c_tri_list]
+            tri_list = [ x[1] for x in c_tri_list]
+            weights = np.random.rand(6)
+            #lstsq optimmize
+            res = least_squares(apply_modes_cost_func, weights,args=(s_list,c_list,tri_list,Modes))
+            weights = res.x
+            new_cost = res.cost
+            #update mesh
+            Mesh.vertices = [vertex_with_modes(vi, Modes, weights) for vi in range(len(Mesh.vertices))]
+            Mesh.update_triangles()
+            for triangle in Mesh.triangles.values():
+                triangle.vertices = tuple([vertex_with_modes(vi, Modes, weights) for vi in triangle.v_index])
+            Mesh.make_tree()
+            #Termination condition
+            if new_cost/cost > 0.95 and new_cost/cost < 1.03:
+                cost_check += 1
+            else:
+                cost_check = 0
+            cost = new_cost
+            print("========================")
+            print("COST:",cost)
+            print("Weight:", weights)
+            print("Check:",cost_check)
+            print("========================")
+        cost_check = 0
+    return weights
+    
+
+
+def apply_modes_cost_func(weights, s_list, c_list, tri_list, Modes):
+    error = 0
+    for i,c in enumerate(c_list):
+        tri = tri_list[i]
+        s = s_list[i]
+        q = apply_modes_to_closest_pt(c,tri,weights,Modes)
+        error += (s-q).norm()
+    return error
+    
+
+def apply_modes_to_closest_pt(c,tri,weights,modes):
+    '''
+    Calculates the barycentric coordinates of point c with respected to triangle tri.
+
+    Parameters
+    ----------
+    c : cismath.Vec3D
+        closest pt on triangle
+    tri : cismath.Triangle
+        triangle
+    weights : list(float)
+        The weights of modes
+    modes : list(list(cismath.Vec3D))
+        The modes of vertices
+    Returns
+    -------
+    q : cismath.Vec3D
+        The point after modes
+    '''
+    
+    m1,m2,m3 = [ modes[0][v_index] for v_index in tri.v_index ]
+    m_matrix = cis.vec_list_to_matrix([m1,m2,m3])
+    barycentric_coord = cis.Vec3D(np.matmul(np.linalg.inv(m_matrix), c.matrix))
+    t = barycentric_coord.x
+    y = barycentric_coord.y
+    u = barycentric_coord.z
+    
+    q = cis.Vec3D(0,0,0)
+    for i,mode in enumerate(modes):
+        m1,m2,m3 = [ mode[v_index] for v_index in tri.v_index ]
+        qm = t*m1 + y*m2 + u*m3
+        if i != 0:
+            qm = weights[i-1] * qm
+        q = q+qm
         
+    return q
+
+def vertex_with_modes(v_index, modes, weights):
+    '''
+    Apply deformation modes to a single vertex
+    
+    Parameters
+    ----------
+    v_index: int
+        Index of a vertex
+    modes : list(list(cis.Vec3D))
+        modes of deformation
+    weights : list(float)
+        weights of modes
+
+    Returns
+    -------
+    v: cis.Vec3D
+        The vertex vector after mmodes 
+    '''
+    v = modes[0][v_index]
+    for i in range(1,1+len(weights)):
+        v = v + weights[i-1]*modes[i][v_index]
+    return v
+            
         
-        
+            
         
         
         

@@ -165,9 +165,10 @@ def matrix_to_vec_list(mat):
     
 class Triangle:
     'Triangle class used for mesh'
-    def __init__(self, v1, v2, v3, i1, i2, i3):
+    def __init__(self, v1, v2, v3, i1, i2, i3, Mesh = None):
         self.vertices = (v1,v2,v3)
         self.v_index = (i1,i2,i3)
+        self.Mesh = None
         self.center, self.radius = bound_sphere(v1,v2,v3)
         if not( np.isclose((self.center - v2).norm(),self.radius)):
             raise Exception('Error in bounding sphere calculation')
@@ -176,6 +177,7 @@ class Mesh:
     'Mesh class'
     def __init__(self):
         self.triangles = dict()
+        self.vertices = []
         self.size = 0
         self.KDTree = None
     
@@ -196,6 +198,7 @@ class Mesh:
         '''
         self.triangles[self.size] = triangle
         self.size += 1
+        triangle.Mesh = self
     
     def make_tree(self, depth = 8):
         'make KDTree structure'
@@ -213,12 +216,13 @@ class Mesh:
 
         Returns
         -------
-        Vec3D
+        (Vec3D, Triangle)
             The closest point on mesh
         '''
         
         closest_pt = Vec3D(9999999,9999999,9999999)
         closest_dis = 9999999
+        closest_tri = None
         #General case
         for (i,tri) in self.triangles.items():
             #Pre-check with bounding sphere
@@ -229,7 +233,8 @@ class Mesh:
                 if disvec.norm() < closest_dis:
                     closest_pt = c
                     closest_dis = disvec.norm()
-        return closest_pt
+                    closest_tri = tri
+        return closest_pt,closest_tri
     
     def closest_pt_on_mesh(self, a):
         '''
@@ -243,15 +248,26 @@ class Mesh:
 
         Returns
         -------
-        The closest point on mesh
+        The closest point on mesh, and the corresponding triangle
 
         '''
         if self.KDTree != None:
-            p, r = self.KDTree.find(a)
-            return p
+            p, r ,tri= self.KDTree.find(a)
+            return p,tri
         else:
             return self.bf_closet_pt_on_mesh(a)
-        
+    
+    def update_triangles(self):
+        '''
+        Update triangles with new vertecies values
+
+        Returns
+        -------
+        None.
+
+        '''
+        for tri in self.triangles.values():
+            tri.vertices = [ self.vertices[vi] for vi in tri.v_index ]
 
 
 
@@ -379,12 +395,12 @@ class KDTree:
     def find(self,point):
         if point.x < self.midvalue:
             result  = self.Lower.find(point)
-            (cur_opt_c,cur_opt_distance) = result
+            (cur_opt_c,cur_opt_distance,cur_opt_tri) = result
             if point.x + cur_opt_distance > self.Higher_LowerBound:
                 return min(result, self.Higher.find(point),key = lambda x:x[1])
         else:
             result  = self.Higher.find(point)
-            (cur_opt_c,cur_opt_distance) = result
+            (cur_opt_c,cur_opt_distance,cur_opt_tri) = result
             if point.x - cur_opt_distance < self.Lower_HighBound:
                 return min(result, self.Lower.find(point),key = lambda x:x[1])
         
@@ -435,43 +451,43 @@ class KDTreeNode:
         'Find the closest point on triangle'
         #If leaf node, calc potential closest point
         if self.isLeaf:
-            cur_opt_c = self.lil_mesh.bf_closet_pt_on_mesh(point)
+            cur_opt_c, cur_opt_tri = self.lil_mesh.bf_closet_pt_on_mesh(point)
             cur_opt_distance = (point-cur_opt_c).norm()
-            return (cur_opt_c,cur_opt_distance)
+            return (cur_opt_c,cur_opt_distance,cur_opt_tri)
             
             
         #Recursive finding leaf node and check finding returned by child
         if self.split_by == 'x':
             if point.x < self.midvalue:
                 result  = self.Lower.find(point)
-                (cur_opt_c,cur_opt_distance) = result
+                (cur_opt_c,cur_opt_distance,cur_opt_tri) = result
                 if point.x + cur_opt_distance > self.Higher_LowerBound:
                     return min(result, self.Higher.find(point),key = lambda x:x[1])
             else:
                 result  = self.Higher.find(point)
-                (cur_opt_c,cur_opt_distance) = result
+                (cur_opt_c,cur_opt_distance,cur_opt_tri) = result
                 if point.x - cur_opt_distance < self.Lower_HighBound:
                     return min(result, self.Lower.find(point),key = lambda x:x[1])
         if self.split_by == 'y':
             if point.y < self.midvalue:
                 result  = self.Lower.find(point)
-                (cur_opt_c,cur_opt_distance) = result
+                (cur_opt_c,cur_opt_distance,cur_opt_tri) = result
                 if point.y + cur_opt_distance > self.Higher_LowerBound:
                     return min(result, self.Higher.find(point),key = lambda x:x[1])
             else:
                 result  = self.Higher.find(point)
-                (cur_opt_c,cur_opt_distance) = result
+                (cur_opt_c,cur_opt_distance,cur_opt_tri) = result
                 if point.y - cur_opt_distance < self.Lower_HighBound:
                     return min(result, self.Lower.find(point),key = lambda x:x[1])
         if self.split_by == 'z':
             if point.z < self.midvalue:
                 result  = self.Lower.find(point)
-                (cur_opt_c,cur_opt_distance) = result
+                (cur_opt_c,cur_opt_distance,cur_opt_tri) = result
                 if point.z + cur_opt_distance > self.Higher_LowerBound:
                     return min(result, self.Higher.find(point),key = lambda x:x[1])
             else:
                 result  = self.Higher.find(point)
-                (cur_opt_c,cur_opt_distance) = result
+                (cur_opt_c,cur_opt_distance,cur_opt_tri) = result
                 if point.z - cur_opt_distance < self.Lower_HighBound:
                     return min(result, self.Lower.find(point),key = lambda x:x[1])
     

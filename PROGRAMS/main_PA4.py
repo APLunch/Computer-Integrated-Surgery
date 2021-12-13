@@ -51,7 +51,7 @@ def main(name, bf = False):
     
     #ICP
     start = time.time()    
-    s_list, c_list, e_list = pa4.ICP(d_list, Mesh)
+    F_reg,s_list, c_list, e_list = pa4.ICP(d_list, Mesh)
     end = time.time()
     print('='*5+'Time Elapsed Using KDTree: {:.3f}s'.format(end-start)+'='*5) 
     
