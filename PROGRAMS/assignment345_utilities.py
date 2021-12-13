@@ -300,32 +300,42 @@ def read_modes(fname):
         
         
 def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
+    lowest_cost = 9999999
     cost = 999
     cost_check = 0
+    weights = np.array([76,-37,-9.98,159,-33,101])
     while cost > 1:
         F_reg = ICP(d_list,Mesh)[0]
         s_list = [ F_reg*d for d in d_list ]
+        n = 0
         while cost_check < 5: 
             c_tri_list = [ Mesh.closest_pt_on_mesh(s) for s in s_list ]
             c_list = [ x[0] for x in c_tri_list]
             tri_list = [ x[1] for x in c_tri_list]
-            weights = np.random.rand(6)
             #lstsq optimmize
             res = least_squares(apply_modes_cost_func, weights,args=(s_list,c_list,tri_list,Modes))
             weights = res.x
             new_cost = res.cost
+            #record bertsolutions
+            if new_cost < lowest_cost:
+                lowest_cost = new_cost
+                lowest_weights = weights
             #update mesh
             Mesh.vertices = [vertex_with_modes(vi, Modes, weights) for vi in range(len(Mesh.vertices))]
             Mesh.update_triangles()
-            for triangle in Mesh.triangles.values():
-                triangle.vertices = tuple([vertex_with_modes(vi, Modes, weights) for vi in triangle.v_index])
             Mesh.make_tree()
             #Termination condition
             if new_cost/cost > 0.95 and new_cost/cost < 1.03:
                 cost_check += 1
             else:
                 cost_check = 0
+            if n > 30:#Force break
+                weights = lowest_weights
+                lowest_cost = 9999999
+                break
             cost = new_cost
+            
+            n += 1
             print("========================")
             print("COST:",cost)
             print("Weight:", weights)

@@ -25,7 +25,7 @@ def main(name, bf = False):
     B_body_filename = 'Problem5-BodyB.txt'
        
     #Load Mesh
-    Mesh = pa5.load_mesh_from_file('Problem4MeshFile.sur')
+    Mesh = pa5.load_mesh_from_file('Problem5MeshFile.sur')
     if not(bf):
         Mesh.make_tree(depth = -1)
         
