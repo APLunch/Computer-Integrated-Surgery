@@ -10,7 +10,7 @@ import cismath as cis
 from registration import registration
 import random
 import math
-
+import re
 
 
 # read the calbody txt file
@@ -267,8 +267,38 @@ def ICP(d_list, Mesh):
     print("Total Iteration: {}".format(n))
     return (s_list,c_list,e_list)
         
+def read_modes(fname):
+    '''
+    Read in Modes of the mesh deformation. Meant to be used in PA5
+
+    Parameters
+    ----------
+    fname : str
+        filename containning the modes infomation
+
+    Returns
+    -------
+    list(list(cis.Vec3D))
+
+    '''
+    with open('../Input Data/{}'.format(fname)) as f:
+        lines = f.readlines()
+        modes = []
+        #Read  first line
+        N_vertex = (int)(lines[0].split()[1].split('=')[1].strip())
+        N_modes = (int)(lines[0].split()[2].split('=')[1].strip())
+        #Read modes
+        for i in range(len(lines)):
+            if 'Mode ' in lines[i]:
+                mode = []
+                for j in range(i+1, i+1+N_vertex):
+                    x,y,z = [ word.strip(' ,') for word in lines[j].split()]
+                    mode.append(cis.Vec3D(x,y,z))
+                modes.append(mode)
+                i = i+N_vertex
+                    
         
-        
+    return modes
         
         
         
