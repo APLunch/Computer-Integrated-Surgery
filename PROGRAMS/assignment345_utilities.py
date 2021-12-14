@@ -123,10 +123,15 @@ def get_debug_output(file_name):
     first_line = lines[0].split(" ")
     N_samps = int(first_line[0])
     
+    second_line = lines[1].split( )
+    weights_output = []
+    for i in range(6):
+        weights_output.append(float(second_line[i]))
+        
     d = []
     c = []
     error = []
-    for line in lines[1:N_samps+1]:
+    for line in lines[2:N_samps+2]:
         words = line.split()
         words = [word.strip(',') for word in words]
         #print(float(words[0]), float(words[1]), float(words[2]))
@@ -134,13 +139,19 @@ def get_debug_output(file_name):
         c.append(cis.Vec3D(float(words[3]), float(words[4]), float(words[5])))
         error.append(float(words[6]))
 
-    return d, c, error
+    return weights_output, d, c, error
 
 
-def compare_output(d_list, c_list, e, d_output, c_output, e_output, N_samples):
+def compare_output(weights, d_list, c_list, e, weights_output, d_output, c_output, e_output, N_samples):
     e = []
     for row in range(N_samples):
         e.append(abs((d_list[row] - c_list[row]).norm()))
+    
+    sum_error_weights = 0
+    for i in range(6):
+        sum_error_weights += abs(weights[i] - weights_output[i])
+    average_erroe_weights = sum_error_weights/6
+        
     
     sum_error_d = cis.Vec3D(0, 0, 0)
     sum_error_c = cis.Vec3D(0, 0, 0)
@@ -154,7 +165,7 @@ def compare_output(d_list, c_list, e, d_output, c_output, e_output, N_samples):
     average_error_c = cis.Vec3D(sum_error_c.x / N_samples, sum_error_c.y / N_samples, sum_error_c.z / N_samples)
     average_error_e = sum_error_e / N_samples
 
-    return average_error_d, average_error_c, average_error_e
+    return average_erroe_weights, average_error_d, average_error_c, average_error_e
 
          
         
@@ -247,8 +258,6 @@ def ICP(d_list, Mesh):
     print("Error_Max:",error_max[-1])
     print("Sigma:",sigma[-1])
     print("Error_Mean:",error_mean[-1])
-    print("Iteration with sampled d: {}".format(iteration_with_sample))
-    print("Total Iteration: {}".format(n))
     return (F[-1],s_list,c_list,e_list, error_max[-1],error_mean[-1])
         
 def read_modes(fname):
@@ -292,11 +301,13 @@ def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
     lowest_weights = None
     lowest_residual = 99999
     terminate_counter = 0
+    num_ICP = 0
     while terminate_counter < 3:
         F_reg, s_list,c_list,e_list,e_max, ICP_Error_Mean = ICP(d_list,Mesh)
+        num_ICP += 1
         n = 0
         check = 0
-        while check < 8: 
+        while check < 5: 
             c_tri_list = [ Mesh.closest_pt_on_mesh(s) for s in s_list ]
             c_list = [ x[0] for x in c_tri_list]
             tri_list = [ x[1] for x in c_tri_list]
@@ -316,12 +327,10 @@ def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
             #Termination condition
             n += 1
             print("========================")
-            print("Weight:", weights)
-            print("Current Best :",lowest_weights)
-            print("Residual:",residual)
+            print("Current Weight:", weights)
             print("========================")
             #Termination condition
-            if new_residual/residual < 1.01 and new_residual/residual > 0.98:
+            if new_residual/residual < 1.2 and new_residual/residual > 0.98:
                 check += 1
             else:
                 check = 0
@@ -333,8 +342,11 @@ def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
             terminate_counter += 1
             old_ICP_Err_Mean = ICP_Error_Mean
             print(terminate_counter)
+        
+        if num_ICP > 10:
+            terminate_counter = 3
             
-    return F_reg,weights,s_list,c_list
+    return F_reg,weights,s_list,c_list, e_list
     
 
 
