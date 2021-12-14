@@ -290,7 +290,7 @@ def closest_pt_on_triangle(tri, point):
     #Configure lstsq
     A = np.hstack([(q_p).matrix, r_p.matrix])
     b = (point-p).matrix
-    res = np.linalg.lstsq(A,b,rcond=1e-8)
+    res = np.linalg.lstsq(A,b,rcond=-1)
     #unpack lambda and mu
     lam = res[0][0][0]
     miu = res[0][1][0]

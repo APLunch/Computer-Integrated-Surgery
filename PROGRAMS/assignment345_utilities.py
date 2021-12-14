@@ -11,7 +11,7 @@ from registration import registration
 import random
 import math
 from scipy.optimize import least_squares
-
+np.set_printoptions(precision=3)
 
 # read the calbody txt file
 def read_body(filename):
@@ -263,7 +263,7 @@ def ICP(d_list, Mesh):
     print("Error_Mean:",error_mean[-1])
     print("Iteration with sampled d: {}".format(iteration_with_sample))
     print("Total Iteration: {}".format(n))
-    return (F[-1],s_list,c_list,e_list)
+    return (F[-1],s_list,c_list,e_list, error_max[-1],error_mean[-1])
         
 def read_modes(fname):
     '''
@@ -300,98 +300,90 @@ def read_modes(fname):
         
         
 def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
-    lowest_cost = 9999999
-    cost = 999
-    cost_check = 0
+    ICP_Error_Mean = 99999
+    residual = 99999
     weights = np.array([76,-37,-9.98,159,-33,101])
-    while cost > 1:
-        F_reg = ICP(d_list,Mesh)[0]
-        s_list = [ F_reg*d for d in d_list ]
+    lowest_weights = None
+    lowest_residual = 99999
+    while ICP_Error_Mean > 0.001:
+        F_reg, s_list,c_list,e_list,e_max, ICP_Error_Mean = ICP(d_list,Mesh)
         n = 0
-        while cost_check < 5: 
+        check = 0
+        while check < 8: 
             c_tri_list = [ Mesh.closest_pt_on_mesh(s) for s in s_list ]
             c_list = [ x[0] for x in c_tri_list]
             tri_list = [ x[1] for x in c_tri_list]
-            #lstsq optimmize
-            res = least_squares(apply_modes_cost_func, weights,args=(s_list,c_list,tri_list,Modes))
-            weights = res.x
-            new_cost = res.cost
-            #record bertsolutions
-            if new_cost < lowest_cost:
-                lowest_cost = new_cost
+            #lstsq calculate weights
+            res = lstsq_calc_weights(s_list, c_list,tri_list, Modes)
+            weights = res[0].reshape(-1,)
+            new_residual = np.linalg.norm(res[1])
+            #record lowest redisual
+            if new_residual < lowest_residual:
                 lowest_weights = weights
+                lowest_residual = new_residual
             #update mesh
             Mesh.vertices = [vertex_with_modes(vi, Modes, weights) for vi in range(len(Mesh.vertices))]
             Mesh.update_triangles()
-            Mesh.make_tree()
+            Mesh.make_tree(depth = -1)
             #Termination condition
-            if new_cost/cost > 0.95 and new_cost/cost < 1.03:
-                cost_check += 1
-            else:
-                cost_check = 0
-            if n > 30:#Force break
-                weights = lowest_weights
-                lowest_cost = 9999999
-                break
-            cost = new_cost
-            
             n += 1
             print("========================")
-            print("COST:",cost)
             print("Weight:", weights)
-            print("Check:",cost_check)
+            print("Current Best :",lowest_weights)
+            print("Residual:",residual)
             print("========================")
-        cost_check = 0
+            #Termination condition
+            if new_residual/residual < 1.01 and new_residual/residual > 0.98:
+                check += 1
+            else:
+                check = 0
+            if new_residual < 1e-8:
+                break
+            residual = new_residual
+            
+            
     return weights
     
 
 
-def apply_modes_cost_func(weights, s_list, c_list, tri_list, Modes):
-    error = 0
-    for i,c in enumerate(c_list):
-        tri = tri_list[i]
-        s = s_list[i]
-        q = apply_modes_to_closest_pt(c,tri,weights,Modes)
-        error += (s-q).norm()
-    return error
-    
+def lstsq_calc_weights(s_list, c_list, tri_list, Modes):
+    q0_list = []
+    #calculate barycetric coordinate for all point s
+    bc_list = [ barycentric(c_list[i],tri_list[i]) for i in range(len(c_list)) ]
+    #Construct q0 matrics
+    for i,tri in enumerate(tri_list):
+        bc = bc_list[i]
+        v1,v2,v3 = [v for v in tri.v_index]#index of vertex of this triangle
+        m1,m2,m3 = [ bc.x*Modes[0][v1], bc.y*Modes[0][v2], bc.z*Modes[0][v3]]
+        q0_list.append( m1+m2+m3 )
+    q0_mat = cis.vec_list_to_matrix(q0_list).T.reshape(-1,1)
+    #Construct s matrix
+    s_mat = cis.vec_list_to_matrix(s_list).T.reshape(-1,1)
+    #Construct q matrix
+    q_mat = None
+    for i,tri in enumerate(tri_list):
+        bc = bc_list[i]
+        qi_moded=[]
+        for j in range(1,len(Modes)):
+            m1,m2,m3 = [Modes[j][v_index] for v_index in tri.v_index]
+            q = bc.x*m1+bc.y*m2+bc.z*m3
+            qi_moded.append(q)
+        qi_mat = cis.vec_list_to_matrix(qi_moded)
+        if q_mat is None:
+            q_mat = qi_mat
+        else:
+            q_mat = np.vstack([q_mat,qi_mat])
+    #print(s_mat-q0_mat)
+    x = np.linalg.lstsq(q_mat,s_mat-q0_mat , rcond=-1 )
+    return x
 
-def apply_modes_to_closest_pt(c,tri,weights,modes):
-    '''
-    Calculates the barycentric coordinates of point c with respected to triangle tri.
-
-    Parameters
-    ----------
-    c : cismath.Vec3D
-        closest pt on triangle
-    tri : cismath.Triangle
-        triangle
-    weights : list(float)
-        The weights of modes
-    modes : list(list(cismath.Vec3D))
-        The modes of vertices
-    Returns
-    -------
-    q : cismath.Vec3D
-        The point after modes
-    '''
-    
-    m1,m2,m3 = [ modes[0][v_index] for v_index in tri.v_index ]
+def barycentric(c,tri):
+    m1,m2,m3 = [ v for v in tri.vertices ]
     m_matrix = cis.vec_list_to_matrix([m1,m2,m3])
     barycentric_coord = cis.Vec3D(np.matmul(np.linalg.inv(m_matrix), c.matrix))
-    t = barycentric_coord.x
-    y = barycentric_coord.y
-    u = barycentric_coord.z
+    return barycentric_coord
     
-    q = cis.Vec3D(0,0,0)
-    for i,mode in enumerate(modes):
-        m1,m2,m3 = [ mode[v_index] for v_index in tri.v_index ]
-        qm = t*m1 + y*m2 + u*m3
-        if i != 0:
-            qm = weights[i-1] * qm
-        q = q+qm
-        
-    return q
+
 
 def vertex_with_modes(v_index, modes, weights):
     '''
@@ -413,7 +405,7 @@ def vertex_with_modes(v_index, modes, weights):
     '''
     v = modes[0][v_index]
     for i in range(1,1+len(weights)):
-        v = v + weights[i-1]*modes[i][v_index]
+        v = v + (weights[i-1]*modes[i][v_index])
     return v
             
         
