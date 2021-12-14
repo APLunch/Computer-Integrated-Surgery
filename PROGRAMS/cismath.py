@@ -176,7 +176,7 @@ class Triangle:
 class Mesh:
     'Mesh class'
     def __init__(self):
-        self.triangles = dict()
+        self.triangles = []
         self.vertices = []
         self.size = 0
         self.KDTree = None
@@ -196,13 +196,13 @@ class Mesh:
         None.
 
         '''
-        self.triangles[self.size] = triangle
+        self.triangles.append(triangle) 
         self.size += 1
         triangle.Mesh = self
     
     def make_tree(self, depth = 8):
         'make KDTree structure'
-        self.KDTree = KDTree(self.triangles.values(), depth = depth)
+        self.KDTree = KDTree(self.triangles, depth = depth)
     
     def bf_closet_pt_on_mesh(self,a):
         '''
@@ -224,7 +224,7 @@ class Mesh:
         closest_dis = 9999999
         closest_tri = None
         #General case
-        for (i,tri) in self.triangles.items():
+        for tri in self.triangles:
             #Pre-check with bounding sphere
             if (a-tri.center).norm()-tri.radius < closest_dis:
                 #Check possible closer point
@@ -266,8 +266,10 @@ class Mesh:
         None.
 
         '''
-        for tri in self.triangles.values():
-            tri.vertices = [ self.vertices[vi] for vi in tri.v_index ]
+        for tri in self.triangles:
+            v1,v2,v3 = [ self.vertices[vi] for vi in tri.v_index ]
+            tri.vertices = (v1,v2,v3)
+            tri.center, tri.radius = bound_sphere(v1,v2,v3)
 
 
 

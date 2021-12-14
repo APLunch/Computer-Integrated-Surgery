@@ -173,12 +173,9 @@ def ICP(d_list, Mesh):
     #error_max.append(0.0)
     error_mean = []
     #error_mean.append(0.0)
-    
     check = 0
     n = 0
     d_list_sample = random.sample(d_list,len(d_list)//4)
-    
-    
     #Input: M, d, F0, n0 check
     iteration_with_sample = 0
     while check < 8:
@@ -199,7 +196,6 @@ def ICP(d_list, Mesh):
             if e < threshold[n]:
                 A_group.append(d)
                 B_group.append(c)
-        
         # step 2: transformation part
         F.append(registration(A_group, B_group))
         
@@ -207,28 +203,19 @@ def ICP(d_list, Mesh):
         for k in range(len(A_group)):
             E = B_group[k] - F[n] * A_group[k]
             E_list.append(E)
-        
-        
         #calculate sigma, error_max and mean error
         sum_dot = 0
         sum_root = 0
         em = 0 
         for k in range(len(E_list)):
             e_dot = E_list[k].dot(E_list[k])
-                
             sum_dot += e_dot
-            
             if em < math.sqrt(e_dot):
                 em = math.sqrt(e_dot)
-                
             sum_root += math.sqrt(e_dot)
-            
         sigma.append(math.sqrt(sum_dot)/len(E_list))
         error_max.append(em)
         error_mean.append(sum_root/len(E_list))
-        
-        
-        
         # Step 3: adjustment
         #adjust threshold
         eta = 3*error_mean[n]
@@ -243,7 +230,6 @@ def ICP(d_list, Mesh):
                 iteration_with_sample = n
         else:
             check = 0
-        
         #Sigma, error max and error mean termination condition
         n += 1
         if sigma[-1] < 0.0008 and error_mean[-1] < 0.0008 and error_max[-1] < 0.0008:
@@ -295,17 +281,18 @@ def read_modes(fname):
                 modes.append(mode)
                 i = i+N_vertex
                     
-        
     return modes
         
         
 def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
     ICP_Error_Mean = 99999
+    old_ICP_Err_Mean = 99999
     residual = 99999
     weights = np.array([76,-37,-9.98,159,-33,101])
     lowest_weights = None
     lowest_residual = 99999
-    while ICP_Error_Mean > 0.001:
+    terminate_counter = 0
+    while terminate_counter < 3:
         F_reg, s_list,c_list,e_list,e_max, ICP_Error_Mean = ICP(d_list,Mesh)
         n = 0
         check = 0
@@ -316,6 +303,7 @@ def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
             #lstsq calculate weights
             res = lstsq_calc_weights(s_list, c_list,tri_list, Modes)
             weights = res[0].reshape(-1,)
+            #weights = np.array([76.6341,-37.1834,-9.9843,159.6028,-33.5675,101.9273])
             new_residual = np.linalg.norm(res[1])
             #record lowest redisual
             if new_residual < lowest_residual:
@@ -324,7 +312,7 @@ def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
             #update mesh
             Mesh.vertices = [vertex_with_modes(vi, Modes, weights) for vi in range(len(Mesh.vertices))]
             Mesh.update_triangles()
-            Mesh.make_tree(depth = -1)
+            Mesh.make_tree(depth = 12)
             #Termination condition
             n += 1
             print("========================")
@@ -340,9 +328,13 @@ def ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes):
             if new_residual < 1e-8:
                 break
             residual = new_residual
+        #Termination condition for the big loop
+        if ICP_Error_Mean/old_ICP_Err_Mean < 1.2 and ICP_Error_Mean/old_ICP_Err_Mean > 0.8:
+            terminate_counter += 1
+            old_ICP_Err_Mean = ICP_Error_Mean
+            print(terminate_counter)
             
-            
-    return weights
+    return F_reg,weights,s_list,c_list
     
 
 
@@ -408,7 +400,52 @@ def vertex_with_modes(v_index, modes, weights):
         v = v + (weights[i-1]*modes[i][v_index])
     return v
             
+
+def output_files_PA5(dataset, weights, s_list, c_list):
+    '''
+    Output file function specific for PA5
+
+    Parameters
+    ----------
+    dataset : str
+        dataset index
+    weights : np.array(float)
+        weights calculated in PA5
+    s_list : list(cismath.Vec3D)
+        list of sample points
+    c_list : list(cismath.Vec3D)
+        list of closest points
+
+    Returns
+    -------
+    None.
+
+    '''
+    filename =  'pa5-{}-Output.txt'.format(dataset)
+    filepath = '../OUTPUT/{}'.format(filename)
+    with open(filepath, 'w') as f:
+        N_samples = len(s_list)
+        N_modes = len(weights)
+        f.write('{} {} {}\n'.format(N_samples,filename,N_modes))
+        f.write('   ')
+        for lam in weights:
+            f.write('{:9.4f}'.format(lam))
+        f.write('\n')
+        for i in range(len(s_list)):
+            f.write('   {:9.2f}{:9.2f}{:9.2f}       {:9.2f}{:9.2f}{:9.2f}     {:.3f}\n'
+                    .format(s_list[i].x,s_list[i].y,s_list[i].z,c_list[i].x,c_list[i].y,c_list[i].z
+                            ,(s_list[i]-c_list[i]).norm()))
         
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
             
         
         

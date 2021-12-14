@@ -51,4 +51,5 @@ def main(name, bf = False):
         d_list.append(d)
         
     #
-    weights = pa5.ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes)
+    F_reg,weights,s_list,c_list = pa5.ICP_And_Calc_Deformation_Weights(d_list,Mesh,Modes)
+    pa5.output_files_PA5(name, weights, s_list, c_list)
