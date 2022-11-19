@@ -7,11 +7,18 @@ The lecturer of the course is Dr.Russel Taylor. If you want to learn more about 
 
 ## Content
 Please switch between branches for content of different CIS programming assignments & projects.
+Each assignment studies different medical robotics topics and their content is documented in PDF report files.
 ### Branch - Programming Assignment 1 & 2 
+- 3D point cloud to point cloud registration
+- Pivot calibration of surgical tool
+- Distortion correction function on point cloud and tool tracking
 
 ### Branch - Programming Assignment 3 & 4
+- Iterative Closest Point (ICP) Registration Algorithm on Bone Mesh
+- ICP with optimized spatial search algorithm
 
 ### Branch - Programming Assignment 5
+- Deformable registration and application on ICP algorithm
 
 ## Disclaimer
 If you are a student taking CIS, please note that you are not allowed to use external materials for your projects & assignments. Please do not use content of this repo as your reference.
