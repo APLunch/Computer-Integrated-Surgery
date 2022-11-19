@@ -7,6 +7,11 @@ The lecturer of the course is Dr.Russel Taylor. If you want to learn more about 
 
 ## Content
 Please switch between branches for content of different CIS programming assignments & projects.
+### Branch - Programming Assignment 1 & 2 
+
+### Branch - Programming Assignment 3 & 4
+
+### Branch - Programming Assignment 5
 
 ## Disclaimer
 If you are a student taking CIS, please note that you are not allowed to use external materials for your projects & assignments. Please do not use content of this repo as your reference.
